@@ -9,4 +9,4 @@ Notion.init();
 await ESBDAPI.setToken();
 Handlers.handlers(BotBase.bot);
 BotBase.bot.launch();
-Logger.log('[inf] ▶ Бот успешно запущен!');
+Logger.log('[inf] ▶ Бот успешно запущен');
