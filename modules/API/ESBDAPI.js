@@ -1,13 +1,15 @@
+import dotenv from 'dotenv';
 import authAPI from './authAPI.js';
 import BaseAPI from '../main/baseAPI.js';
 import BotBase from '../main/botBase.js';
+dotenv.config({ override: true });
 
 class ESBDAPI extends BaseAPI {
     #API;
 
     constructor(options = {}) {
         super(
-            options.baseURL || BotBase.config.API.hosts.GATEWAY_URL,
+            options.baseURL || process.env.GATEWAY_URL,
             options.logString,
             options.timeout, 
             options.headers

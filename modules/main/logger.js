@@ -1,10 +1,11 @@
+import dotenv from 'dotenv';
 import moment from 'moment';
-import BotBase from './botBase.js';
+dotenv.config({ override: true });
 
 class Logger {
     static log(step) {
         const timeStamp = moment().format().slice(0, 19).replace('T', ' ');
-        if (BotBase.config.hiddenLogBodies && step.includes('[req]')) {
+        if (process.env.HIDDEN_LOG_BODIES && step.includes('[req]')) {
             const words = step.split(' ');
             const firstPart = words.slice(0, 3).join(' ');
             const secondPart = words.slice(words.length - 2).join(' ');

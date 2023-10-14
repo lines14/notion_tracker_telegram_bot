@@ -1,14 +1,16 @@
+import dotenv from 'dotenv';
 import BaseAPI from '../main/baseAPI.js';
 import BotBase from '../main/botBase.js';
+dotenv.config({ override: true });
 
 class DTAAPI extends BaseAPI {
     constructor(options = {}) {
         super(
-            options.baseURL || BotBase.config.API.hosts.ONES_HOST_REST_URL,
+            options.baseURL || process.env.ONES_HOST_REST_URL,
             options.logString ?? '[inf] ▶ set base API URL:',
-            options.timeout || BotBase.config.timeout, 
+            options.timeout || process.env.TIMEOUT, 
             options.headers || {
-                'Authorization': 'Basic ' + btoa(BotBase.config.API.credentials.ONES_LOGIN + ':' + BotBase.config.API.credentials.ONES_PASSWORD),
+                'Authorization': 'Basic ' + btoa(process.env.ONES_LOGIN + ':' + process.env.ONES_PASSWORD),
             }
         );
     }

@@ -7,7 +7,7 @@ class BotBase {
 
 	static init() {
 		this.#config = JSON.parse(JSON.stringify(config));
-		this.#bot = new Telegraf(this.config.bot.credentials.TG_TOKEN, { handlerTimeout: Infinity });
+		this.#bot = new Telegraf(this.config.credentials.TG_TOKEN, { handlerTimeout: Infinity });
 	}
 
 	static get config() {

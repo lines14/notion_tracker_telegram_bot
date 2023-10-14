@@ -1,6 +1,8 @@
+import dotenv from 'dotenv';
 import Logger from '../main/logger.js';
 import BaseAPI from '../main/baseAPI.js';
 import BotBase from '../main/botBase.js';
+dotenv.config({ override: true });
 
 class AuthAPI extends BaseAPI {
     #login;
@@ -8,13 +10,13 @@ class AuthAPI extends BaseAPI {
 
     constructor(options = {}) {
         super(
-            options.baseURL || BotBase.config.API.hosts.GATEWAY_URL,
+            options.baseURL || process.env.GATEWAY_URL,
             options.logString ?? '[inf] ▶ set base API URL:',
             options.timeout,
             options.headers
         );
-        this.#login = BotBase.config.API.credentials.AUTH_LOGIN;
-        this.#password = BotBase.config.API.credentials.AUTH_PASSWORD;
+        this.#login = process.env.AUTH_LOGIN;
+        this.#password = process.env.AUTH_PASSWORD;
     }
 
     async auth(user) {
