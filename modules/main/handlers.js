@@ -1,5 +1,6 @@
 import Notion from './notion.js';
 import { message } from 'telegraf/filters';
+import StatusChecker from './statusChecker.js';
 
 class Handlers {
     static handlers(bot) {
@@ -7,7 +8,8 @@ class Handlers {
 
         bot.on(message('text'), async (ctx) => {
             const policies = await Notion.getNotCancelledPolicies();
-            await Notion.updateNotCancelledPolicies(policies);
+            const checkedPolicies = await StatusChecker.checkESBD(policies);
+            await Notion.updateNotCancelledPolicies(checkedPolicies);
             ctx.reply('Статусы полисов обновлены');
         });
     }
