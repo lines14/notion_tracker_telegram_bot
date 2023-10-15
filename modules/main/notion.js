@@ -12,9 +12,9 @@ class Notion {
     static async getNotCancelledPolicies() {
         const response = await this.#notion.databases.query({ database_id: BotBase.config.credentials.NOTION_DB_ID });
         const filtered = response.results.filter((policy) => {
-            return !policy.properties.DTA.rich_text[0]?.plain_text 
+            return !policy.properties.ones.rich_text[0]?.plain_text 
             || !policy.properties.ESBD.rich_text[0]?.plain_text
-            || policy.properties.DTA.rich_text[0]?.plain_text === 'Выписан' 
+            || policy.properties.ones.rich_text[0]?.plain_text === 'Выписан' 
             || policy.properties.ESBD.rich_text[0]?.plain_text === 'Выписан';
         });
 
@@ -26,7 +26,7 @@ class Notion {
             await this.#notion.pages.update({ 
                 page_id: policy.id,
                 properties: { 
-                    DTA: { rich_text: [{ text: { content: BotBase.config.API.statuses.DTA[policy.status.DTA ? policy.status.DTA : '6'] } }] }, 
+                    ones: { rich_text: [{ text: { content: BotBase.config.API.statuses.ones[policy.status.ones ? policy.status.ones : '6'] } }] }, 
                     ESBD: { rich_text: [{ text: { content: BotBase.config.API.statuses.ESBD[policy.status.ESBD] } }] } 
                 }
             });

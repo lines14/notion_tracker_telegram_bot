@@ -7,15 +7,15 @@ class Handlers {
         bot.command('update', async (ctx) => {
             const policies = await Notion.getNotCancelledPolicies();
             let checkedPolicies = await StatusChecker.checkESBD(policies);
-            checkedPolicies = await StatusChecker.checkDTA(checkedPolicies);
+            checkedPolicies = await StatusChecker.checkOnes(checkedPolicies);
             await Notion.updateNotCancelledPolicies(checkedPolicies);
             let notification = 'Статусы полисов обновлены';
             checkedPolicies.forEach((policy) => {
-                if (policy.status.DTA === 8 && policy.status.ESBD === 0) {
+                if (policy.status.ones === 8 && policy.status.ESBD === 0) {
                     notification = notification + `:\n${policy.number} не отменён в 1С и ЕСБД`;
-                } else if (policy.status.DTA === 8 && policy.status.ESBD !== 0) {
+                } else if (policy.status.ones === 8 && policy.status.ESBD !== 0) {
                     notification = notification + `:\n${policy.number} не отменён в 1С`;
-                } else if (policy.status.DTA !== 8 && policy.status.ESBD === 0) {
+                } else if (policy.status.ones !== 8 && policy.status.ESBD === 0) {
                     notification = notification + `:\n${policy.number} не отменён в ЕСБД`;
                 }
             });

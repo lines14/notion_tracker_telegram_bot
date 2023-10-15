@@ -1,4 +1,4 @@
-import DTAAPI from '../API/DTAAPI.js';
+import onesAPI from '../API/onesAPI.js';
 import ESBDAPI from '../API/ESBDAPI.js';
 import { resolveNestedPromises } from 'resolve-nested-promises';
 
@@ -23,10 +23,10 @@ class StatusChecker {
         return resolveNestedPromises(checkedPolicies);
     }
 
-    static async checkDTA(policies) {
+    static async checkOnes(policies) {
         const checkedPolicies = policies.map(async (policy) => {
-            const status = (await DTAAPI.getPolicy(policy.number)).data.contracts[0]?.policy_status;
-            policy.status.DTA = status;
+            const response = await onesAPI.getPolicy(policy.number);
+            if (response.data.contracts) policy.status.ones = response.data.contracts[0].policy_status;
             return { id: policy.id, number: policy.number, status: policy.status };
         });
 
