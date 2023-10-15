@@ -12,10 +12,5 @@ await ESBDAPI.setToken();
 
 Handlers.commands(BotBase.bot);
 
-bot.launch({ 
-    webhook: { 
-        domain: `https://${BotBase.config.credentials.WEBHOOK_HOST}/${BotBase.config.credentials.TG_TOKEN}`, 
-        port: Number(BotBase.config.credentials.WEBAPP_PORT) 
-    } 
-});
+BotBase.bot.launch();
 Logger.log('[inf] ▶ Бот успешно запущен');
