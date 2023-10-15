@@ -1,13 +1,10 @@
 import Notion from './notion.js';
 import Logger from './logger.js';
-import { message } from 'telegraf/filters';
 import StatusChecker from './statusChecker.js';
 
 class Handlers {
     static handlers(bot) {
-        bot.command('start', (ctx) => ctx.reply('Бот успешно запущен'));
-
-        bot.on(message('text'), async (ctx) => {
+        bot.command('update', async (ctx) => {
             const policies = await Notion.getNotCancelledPolicies();
             let checkedPolicies = await StatusChecker.checkESBD(policies);
             checkedPolicies = await StatusChecker.checkDTA(checkedPolicies);
