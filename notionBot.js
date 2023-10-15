@@ -10,7 +10,7 @@ Notion.init();
 await onesAPI.setToken();
 await ESBDAPI.setToken();
 
-Handlers.handlers(BotBase.bot);
+Handlers.commands(BotBase.bot);
 
 BotBase.bot.launch();
 Logger.log('[inf] ▶ Бот успешно запущен');
