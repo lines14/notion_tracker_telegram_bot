@@ -1,4 +1,5 @@
 import Notion from './notion.js';
+import Logger from './logger.js';
 import { message } from 'telegraf/filters';
 import StatusChecker from './statusChecker.js';
 
@@ -8,9 +9,21 @@ class Handlers {
 
         bot.on(message('text'), async (ctx) => {
             const policies = await Notion.getNotCancelledPolicies();
-            const checkedPolicies = await StatusChecker.checkESBD(policies);
+            let checkedPolicies = await StatusChecker.checkESBD(policies);
+            checkedPolicies = await StatusChecker.checkDTA(checkedPolicies);
             await Notion.updateNotCancelledPolicies(checkedPolicies);
-            ctx.reply('Статусы полисов обновлены');
+            let notification = 'Статусы полисов обновлены';
+            checkedPolicies.forEach((policy) => {
+                if (policy.status.DTA === 8 && policy.status.ESBD === 0) {
+                    notification = notification + `:\n${policy.number} не отменён в 1С и ЕСБД`;
+                } else if (policy.status.DTA === 8 && policy.status.ESBD !== 0) {
+                    notification = notification + `:\n${policy.number} не отменён в 1С`;
+                } else if (policy.status.DTA !== 8 && policy.status.ESBD === 0) {
+                    notification = notification + `:\n${policy.number} не отменён в ЕСБД`;
+                }
+            });
+            ctx.reply(notification);
+            Logger.log('[inf] ▶ Уведомление отправлено');
         });
     }
 }

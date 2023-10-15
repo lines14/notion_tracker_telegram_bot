@@ -26,8 +26,8 @@ class Notion {
             await this.#notion.pages.update({ 
                 page_id: policy.id,
                 properties: { 
-                    // DTA: { rich_text: [{ text: { content: BotBase.config.API.statuses.DTA[policy.status] } }] }, 
-                    ESBD: { rich_text: [{ text: { content: BotBase.config.API.statuses.ESBD[policy.status] } }] } 
+                    DTA: { rich_text: [{ text: { content: BotBase.config.API.statuses.DTA[policy.status.DTA ? policy.status.DTA : '6'] } }] }, 
+                    ESBD: { rich_text: [{ text: { content: BotBase.config.API.statuses.ESBD[policy.status.ESBD] } }] } 
                 }
             });
         });
