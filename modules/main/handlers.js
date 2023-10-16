@@ -5,12 +5,14 @@ import StatusChecker from './statusChecker.js';
 
 class Handlers {
     static async checkAndNotify(ctx) {
-        const policies = await Notion.getNotCancelledPolicies();
-        let checkedPolicies = await StatusChecker.checkESBD(policies);
-        checkedPolicies = await StatusChecker.checkOnes(checkedPolicies);
-        await Notion.updateNotCancelledPolicies(checkedPolicies);
+        let policies = await Notion.getNotCancelledPolicies();
+        policies = await StatusChecker.getStatusESBD(policies);
+        policies = await StatusChecker.getStatusOnes(policies);
+        await Notion.updateNotCancelledPolicies(policies);
+
         let notification = 'Статусы полисов обновлены';
-        checkedPolicies.forEach((policy) => {
+        policies.forEach((policy) => {
+            console.log(policy);
             if (policy.status.ones === 8 && policy.status.ESBD === 0) {
                 notification = notification + `:\n${policy.number} не отменён в 1С и ЕСБД`;
             } else if (policy.status.ones === 8 && policy.status.ESBD !== 0) {
@@ -19,6 +21,7 @@ class Handlers {
                 notification = notification + `:\n${policy.number} не отменён в ЕСБД`;
             }
         });
+
         ctx.reply(notification);
         Logger.log('[inf] ▶ Уведомление отправлено');
     }

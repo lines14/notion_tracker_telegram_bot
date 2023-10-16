@@ -1,36 +1,37 @@
+import BotBase from './botBase.js';
 import onesAPI from '../API/onesAPI.js';
 import ESBDAPI from '../API/ESBDAPI.js';
-import { resolveNestedPromises } from 'resolve-nested-promises';
 
 class StatusChecker {
-    static async checkESBD(policies) {
-        const checkedPolicies = policies.map(async (policy) => {
-            if (policy.number.startsWith('122')) {
-                const status = (await ESBDAPI.getContract_By_Number('GetContractComplex_By_Number', policy.number))
-                .data.data.GetContractComplex_By_NumberResult.CONTRACT_COMPLEX.RESCINDING_REASON_ID;
-                return { id: policy.id, number: policy.number, status: { ESBD: status } };
-            } else if (policy.number.startsWith('802')) {
-                const status = (await ESBDAPI.getContract_By_Number('GetContractDsHealth_By_Number', policy.number))
-                .data.data.GetContractDsHealth_By_NumberResult.CONTRACT_DS_HEALTH.RESCINDING_REASON_ID;
-                return { id: policy.id, number: policy.number, status: { ESBD: status } };
-            } else if (policy.number.startsWith('911')) {
-                const status = (await ESBDAPI.getContract_By_Number('GetContractOsTourist_By_Number', policy.number))
-                .data.data.GetContractOsTourist_By_NumberResult.CONTRACT_OS_TOURIST.RESCINDING_REASON_ID;
-                return { id: policy.id, number: policy.number, status: { ESBD: status } };
+    static async getStatusESBD(policies) {
+        for (const policy of policies) {
+            policy.status = {};
+            for (const key of Object.keys(BotBase.config.API.endpoints.ESBD.submethods)) {
+                if (policy.number.startsWith(key)) {
+                    const submethod = BotBase.config.API.endpoints.ESBD.submethods[key];
+                    const response = await ESBDAPI.getContract_By_Number(submethod, policy.number);
+                    if (response.data.success) {
+                        const productKey = submethod.split('_').reverse().pop().slice(3).split(/(?=[A-Z])/).join('_').toUpperCase();
+                        policy.status.ESBD = response.data.data[`${submethod}Result`][productKey].RESCINDING_REASON_ID;
+                    }
+                }
             }
-        });
+        }
 
-        return resolveNestedPromises(checkedPolicies);
+        return policies;
     }
 
-    static async checkOnes(policies) {
-        const checkedPolicies = policies.map(async (policy) => {
+    static async getStatusOnes(policies) {
+        for (const policy of policies) {
             const response = await onesAPI.getPolicy(policy.number);
-            if (response.data.contracts) policy.status.ones = response.data.contracts[0].policy_status;
-            return { id: policy.id, number: policy.number, status: policy.status };
-        });
+            if (response.data.contracts) {
+                policy.status.ones = response.data.contracts[0].policy_status;
+            } else if (response.data.error.errors.contracts) {
+                policy.status.ones = response.data.error.errors.contracts[0].match(/удаление/).reverse().pop();
+            }
+        }
 
-        return resolveNestedPromises(checkedPolicies);
+        return policies;
     }
 }
 

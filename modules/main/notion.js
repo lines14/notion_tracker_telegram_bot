@@ -23,13 +23,15 @@ class Notion {
 
     static async updateNotCancelledPolicies(policies) {
         policies.forEach(async (policy) => {
-            await this.#notion.pages.update({ 
-                page_id: policy.id,
-                properties: { 
-                    ones: { rich_text: [{ text: { content: BotBase.config.API.statuses.ones[policy.status.ones ? policy.status.ones : '6'] } }] }, 
-                    ESBD: { rich_text: [{ text: { content: BotBase.config.API.statuses.ESBD[policy.status.ESBD] } }] } 
-                }
-            });
+            if (Object.keys(policy.status).length !== 0) {
+                await this.#notion.pages.update({ 
+                    page_id: policy.id,
+                    properties: { 
+                        ones: { rich_text: [{ text: { content: policy.status.ones ? BotBase.config.API.statuses.ones[policy.status.ones] : '' } }] }, 
+                        ESBD: { rich_text: [{ text: { content: BotBase.config.API.statuses.ESBD[policy.status.ESBD] ?? '' } }] } 
+                    }
+                });
+            }
         });
 
         Logger.log('[inf] ▶ Статусы полисов обновлены')

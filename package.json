@@ -6,7 +6,6 @@
         "dotenv": "^16.3.1",
         "moment": "^2.29.4",
         "node-schedule": "^2.1.1",
-        "resolve-nested-promises": "^1.1.0",
         "telegraf": "^4.14.0"
     }
 }
