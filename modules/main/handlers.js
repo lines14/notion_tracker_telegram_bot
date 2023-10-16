@@ -12,7 +12,6 @@ class Handlers {
 
         let notification = 'Статусы полисов обновлены';
         policies.forEach((policy) => {
-            console.log(policy);
             if (policy.status.ones === 8 && policy.status.ESBD === 0) {
                 notification = notification + `:\n${policy.number} не отменён в 1С и ЕСБД`;
             } else if (policy.status.ones === 8 && policy.status.ESBD !== 0) {
@@ -30,16 +29,20 @@ class Handlers {
         let job;
         bot.command('start', async (ctx) => {
             job = schedule.scheduleJob('0 * * * *', async () => {
+                Logger.log('[inf] ▶ Запущено обновление статусов');
                 await this.checkAndNotify(ctx);
             });
+            Logger.log('[inf] ▶ Cron запущен');
         });
 
         bot.command('update', async (ctx) => {
+            Logger.log('[inf] ▶ Запущено обновление статусов');
             await this.checkAndNotify(ctx);
         });
 
         bot.command('stop', (ctx) => {
             if (job) job.cancel();
+            Logger.log('[inf] ▶ Cron остановлен');
         });
     }
 }
