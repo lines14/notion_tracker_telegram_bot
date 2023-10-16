@@ -15,7 +15,8 @@ Handlers.commands(BotBase.bot);
 BotBase.bot.launch({ 
     webhook: { 
         domain: BotBase.config.credentials.WEBHOOK_HOST, 
-        port: Number(BotBase.config.credentials.WEBAPP_PORT) 
+        port: Number(BotBase.config.credentials.WEBAPP_PORT),
+        hookPath: `/${BotBase.config.credentials.TG_TOKEN}`
     } 
 });
 Logger.log('[inf] ▶ Бот успешно запущен');
