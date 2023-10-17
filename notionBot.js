@@ -7,8 +7,6 @@ import ESBDAPI from './modules/API/ESBDAPI.js';
 
 BotBase.init();
 Notion.init();
-await onesAPI.setToken();
-await ESBDAPI.setToken();
 
 Handlers.commands(BotBase.bot);
 

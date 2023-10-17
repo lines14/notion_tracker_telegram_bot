@@ -4,6 +4,7 @@ import ESBDAPI from '../API/ESBDAPI.js';
 
 class StatusChecker {
     static async getStatusESBD(policies) {
+        await ESBDAPI.setToken();
         for (const policy of policies) {
             policy.status = {};
             for (const key of Object.keys(BotBase.config.API.endpoints.ESBD.submethods)) {
@@ -22,6 +23,7 @@ class StatusChecker {
     }
 
     static async getStatusOnes(policies) {
+        await onesAPI.setToken();
         for (const policy of policies) {
             const response = await onesAPI.getPolicy(policy.number);
             if (response.data.contracts) {
