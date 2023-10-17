@@ -23,31 +23,29 @@ class Notion {
 
     static async updateNotCancelledPolicies(policies) {
         policies.forEach(async (policy) => {
-            if (Object.keys(policy.status).length !== 0) {
-                await this.#notion.pages.update({ 
-                    page_id: policy.id,
-                    properties: { 
-                        ones: { 
-                            status: { 
-                                name: policy.status.ones 
-                                ? BotBase.config.API.statuses.ones[policy.status.ones] 
-                                : BotBase.config.API.statuses.ones.default, 
-                                color: policy.status.ones 
-                                ? BotBase.config.API.statuses.colors.ones[policy.status.ones] 
-                                : BotBase.config.API.statuses.colors.ones.default 
-                            } 
-                        }, 
-                        ESBD: { 
-                            status: { 
-                                name: BotBase.config.API.statuses.ESBD[policy.status.ESBD] 
-                                ?? BotBase.config.API.statuses.ESBD.default, 
-                                color: BotBase.config.API.statuses.colors.ESBD[policy.status.ESBD] 
-                                ?? BotBase.config.API.statuses.colors.ESBD.default 
-                            } 
+            await this.#notion.pages.update({ 
+                page_id: policy.id,
+                properties: { 
+                    ones: { 
+                        status: { 
+                            name: policy.status.ones 
+                            ? BotBase.config.API.statuses.ones[policy.status.ones] 
+                            : BotBase.config.API.statuses.ones.default, 
+                            color: policy.status.ones 
+                            ? BotBase.config.API.statuses.colors.ones[policy.status.ones] 
+                            : BotBase.config.API.statuses.colors.ones.default 
                         } 
-                    }
-                });
-            }
+                    }, 
+                    ESBD: { 
+                        status: { 
+                            name: BotBase.config.API.statuses.ESBD[policy.status.ESBD] 
+                            ?? BotBase.config.API.statuses.ESBD.default, 
+                            color: BotBase.config.API.statuses.colors.ESBD[policy.status.ESBD] 
+                            ?? BotBase.config.API.statuses.colors.ESBD.default 
+                        } 
+                    } 
+                }
+            });
         });
 
         Logger.log('[inf] ▶ Статусы полисов обновлены')
