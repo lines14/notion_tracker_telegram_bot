@@ -28,7 +28,7 @@ class Handlers {
     static commands(bot) {
         let job;
         bot.command('start', async (ctx) => {
-            job = schedule.scheduleJob('0 * * * *', async () => {
+            job = schedule.scheduleJob('0 8-20 * * 1-5', async () => {
                 Logger.log('[inf] ▶ Запущено обновление статусов');
                 await this.checkAndNotify(ctx);
             });
