@@ -12,10 +12,10 @@ class Notion {
     static async getNotCancelledPolicies() {
         const response = await this.#notion.databases.query({ database_id: BotBase.config.credentials.NOTION_DB_ID });
         const filtered = response.results.filter((policy) => {
-            return !policy.properties.ones.rich_text[0]?.plain_text 
-            || !policy.properties.ESBD.rich_text[0]?.plain_text
-            || policy.properties.ones.rich_text[0]?.plain_text === 'Выписан' 
-            || policy.properties.ESBD.rich_text[0]?.plain_text === 'Выписан';
+            return policy.properties.ones.status.name === 'Выписан'
+            || policy.properties.ESBD.status.name === 'Выписан'
+            || policy.properties.ones.status.name === 'Статус не обновлён' 
+            || policy.properties.ESBD.status.name === 'Статус не обновлён';
         });
 
         return filtered.map((policy) => ({ id: policy.id, number: policy.properties.number.title[0].plain_text }));
@@ -27,8 +27,24 @@ class Notion {
                 await this.#notion.pages.update({ 
                     page_id: policy.id,
                     properties: { 
-                        ones: { rich_text: [{ text: { content: policy.status.ones ? BotBase.config.API.statuses.ones[policy.status.ones] : '' } }] }, 
-                        ESBD: { rich_text: [{ text: { content: BotBase.config.API.statuses.ESBD[policy.status.ESBD] ?? '' } }] } 
+                        ones: { 
+                            status: { 
+                                name: policy.status.ones 
+                                ? BotBase.config.API.statuses.ones[policy.status.ones] 
+                                : BotBase.config.API.statuses.ones.default, 
+                                color: policy.status.ones 
+                                ? BotBase.config.API.statuses.colors.ones[policy.status.ones] 
+                                : BotBase.config.API.statuses.colors.ones.default 
+                            } 
+                        }, 
+                        ESBD: { 
+                            status: { 
+                                name: BotBase.config.API.statuses.ESBD[policy.status.ESBD] 
+                                ?? BotBase.config.API.statuses.ESBD.default, 
+                                color: BotBase.config.API.statuses.colors.ESBD[policy.status.ESBD] 
+                                ?? BotBase.config.API.statuses.colors.ESBD.default 
+                            } 
+                        } 
                     }
                 });
             }
