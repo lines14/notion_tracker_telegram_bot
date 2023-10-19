@@ -19,18 +19,18 @@ class Handlers {
         let notification = 'Тестовые полисы на PROD:';
         policies.forEach((policy) => {
             policy.notifications = [];
-            if (policy.status.ones === 'default') policy.notifications.push('\n      статус 1С неизвестен');
-            if (policy.status.ESBD === 'default' ) policy.notifications.push('\n      статус ЕСБД неизвестен');
-            if (issuedOnesKeys.includes(policy.status.ones)) policy.notifications.push('\n      не отменён в 1С');
-            if (issuedESBDKeys.includes(policy.status.ESBD)) policy.notifications.push('\n      не отменён в ЕСБД');
+            if (policy.status.ones === 'default') policy.notifications.push('\n❓статус 1С неизвестен');
+            if (policy.status.ESBD === 'default' ) policy.notifications.push('\n❓статус ЕСБД неизвестен');
+            if (issuedOnesKeys.includes(policy.status.ones)) policy.notifications.push('\n❗не отменён в 1С');
+            if (issuedESBDKeys.includes(policy.status.ESBD)) policy.notifications.push('\n❗не отменён в ЕСБД');
             if (policy.notifications.length !== 0) {
-                policy.notifications.unshift(`\n\n▶ ${policy.number}:`);
+                policy.notifications.unshift(`\n\n${policy.number}:`);
                 policy.notifications.forEach((message) => notification = notification + message);
             }
         });
 
         if (notification.length === 24) {
-            notification = 'Выписанные тестовые полисы на PROD отсутствуют';
+            notification = 'Выписанных тестовых полисов на PROD нет';
         }
 
         ctx.reply(notification);
