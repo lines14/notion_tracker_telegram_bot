@@ -19,6 +19,8 @@ class StatusChecker {
                     }
                 }
             }
+
+            if (!policy.status.ESBD) policy.status.ESBD = 'default';
         }
 
         return policies;
@@ -32,6 +34,8 @@ class StatusChecker {
                 policy.status.ones = response.data.contracts[0].policy_status;
             } else if (response.data.error.errors.contracts) {
                 policy.status.ones = response.data.error.errors.contracts[0].match(/удаление/).reverse().pop();
+            } else {
+                policy.status.ones = 'default';
             }
         }
 

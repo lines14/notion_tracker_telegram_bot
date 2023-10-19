@@ -16,16 +16,28 @@ class Handlers {
         const issuedESBDKeys = Object.keys(BotBase.config.API.statuses.ESBD)
         .filter((key) => BotBase.config.API.statuses.ESBD[key] === 'Выписан').map(Number);
 
-        let notification = 'Статусы полисов обновлены';
+        let notification = 'Тестовые полисы на PROD:';
         policies.forEach((policy) => {
-            if (issuedOnesKeys.includes(policy.status.ones) && issuedESBDKeys.includes(policy.status.ESBD)) {
-                notification = notification + `:\n${policy.number} не отменён в 1С и ЕСБД`;
-            } else if (issuedOnesKeys.includes(policy.status.ones) && !issuedESBDKeys.includes(policy.status.ESBD)) {
-                notification = notification + `:\n${policy.number} не отменён в 1С`;
-            } else if (!issuedOnesKeys.includes(policy.status.ones) && issuedESBDKeys.includes(policy.status.ESBD)) {
-                notification = notification + `:\n${policy.number} не отменён в ЕСБД`;
+            if (policy.status.ones === 'default') {
+                notification = notification + `\n${policy.number} статус 1С неизвестен`;
+            }
+
+            if (policy.status.ESBD === 'default' ) {
+                notification = notification + `\n${policy.number} статус ЕСБД неизвестен`;
+            }
+            
+            if (issuedOnesKeys.includes(policy.status.ones)) {
+                notification = notification + `\n${policy.number} не отменён в 1С`;
+            }
+            
+            if (issuedESBDKeys.includes(policy.status.ESBD)) {
+                notification = notification + `\n${policy.number} не отменён в ЕСБД`;
             }
         });
+
+        if (notification.length === 24) {
+            notification = 'Выписанные тестовые полисы на PROD отсутствуют';
+        }
 
         ctx.reply(notification);
         Logger.log('[inf] ▶ Уведомление отправлено');

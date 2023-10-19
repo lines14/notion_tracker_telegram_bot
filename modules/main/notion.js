@@ -14,8 +14,8 @@ class Notion {
         const filtered = response.results.filter((policy) => {
             return policy.properties.ones.status.name === 'Выписан'
             || policy.properties.ESBD.status.name === 'Выписан'
-            || policy.properties.ones.status.name === 'Статус не обновлён' 
-            || policy.properties.ESBD.status.name === 'Статус не обновлён';
+            || policy.properties.ones.status.name === 'Статус неизвестен' 
+            || policy.properties.ESBD.status.name === 'Статус неизвестен';
         });
 
         return filtered.map((policy) => ({ id: policy.id, number: policy.properties.number.title[0].plain_text }));
@@ -28,20 +28,14 @@ class Notion {
                 properties: { 
                     ones: { 
                         status: { 
-                            name: policy.status.ones 
-                            ? BotBase.config.API.statuses.ones[policy.status.ones] 
-                            : BotBase.config.API.statuses.default, 
-                            color: policy.status.ones 
-                            ? BotBase.config.API.statuses.colors.ones[policy.status.ones] 
-                            : BotBase.config.API.statuses.colors.default 
+                            name: BotBase.config.API.statuses.ones[policy.status.ones],
+                            color: BotBase.config.API.statuses.colors.ones[policy.status.ones]
                         } 
                     }, 
                     ESBD: { 
                         status: { 
-                            name: BotBase.config.API.statuses.ESBD[policy.status.ESBD] 
-                            ?? BotBase.config.API.statuses.default, 
-                            color: BotBase.config.API.statuses.colors.ESBD[policy.status.ESBD] 
-                            ?? BotBase.config.API.statuses.colors.default 
+                            name: BotBase.config.API.statuses.ESBD[policy.status.ESBD],
+                            color: BotBase.config.API.statuses.colors.ESBD[policy.status.ESBD]
                         } 
                     } 
                 }
