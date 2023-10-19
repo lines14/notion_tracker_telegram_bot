@@ -11,15 +11,15 @@ class Handlers {
         await Notion.updateNotCancelledPolicies(policies);
 
         let notification = 'Статусы полисов обновлены';
-        policies.forEach((policy) => {
-            if (policy.status.ones === 8 && policy.status.ESBD === 0) {
-                notification = notification + `:\n${policy.number} не отменён в 1С и ЕСБД`;
-            } else if (policy.status.ones === 8 && policy.status.ESBD !== 0) {
-                notification = notification + `:\n${policy.number} не отменён в 1С`;
-            } else if (policy.status.ones !== 8 && policy.status.ESBD === 0) {
-                notification = notification + `:\n${policy.number} не отменён в ЕСБД`;
-            }
-        });
+        // policies.forEach((policy) => {
+        //     if (policy.status.ones === 8 && policy.status.ESBD === 0) {
+        //         notification = notification + `:\n${policy.number} не отменён в 1С и ЕСБД`;
+        //     } else if (policy.status.ones === 8 && policy.status.ESBD !== 0) {
+        //         notification = notification + `:\n${policy.number} не отменён в 1С`;
+        //     } else if (policy.status.ones !== 8 && policy.status.ESBD === 0) {
+        //         notification = notification + `:\n${policy.number} не отменён в ЕСБД`;
+        //     }
+        // });
 
         ctx.reply(notification);
         Logger.log('[inf] ▶ Уведомление отправлено');

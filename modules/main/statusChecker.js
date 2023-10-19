@@ -12,7 +12,9 @@ class StatusChecker {
                     const submethod = BotBase.config.API.endpoints.ESBD.submethods[key];
                     const response = await ESBDAPI.getContract_By_Number(submethod, policy.number);
                     if (response.data.success) {
-                        const productKey = submethod.split('_').reverse().pop().slice(3).split(/(?=[A-Z])/).join('_').toUpperCase();
+                        const productKey = key === '901' 
+                        ? 'Policy' 
+                        : submethod.split('_').reverse().pop().slice(3).split(/(?=[A-Z])/).join('_').toUpperCase();
                         policy.status.ESBD = response.data.data[`${submethod}Result`][productKey].RESCINDING_REASON_ID;
                     }
                 }

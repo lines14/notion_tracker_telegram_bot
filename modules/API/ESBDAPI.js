@@ -20,13 +20,15 @@ class ESBDAPI extends BaseAPI {
         this.#API = new ESBDAPI({ headers: { Authorization: `Bearer ${await authAPI.auth()}` } });
     }
 
-    async getContract_By_Number(methodName, aContractNumber) {
+    async getContract_By_Number(methodName, number) {
         const params = {
             methodName,
-            params: {
-                aContractNumber
-            }
+            params: {}
         }
+
+        number.startsWith('901') 
+        ? params.params.aPolicyNumber = number
+        : params.params.aContractNumber = number
 
         return await this.#API.post(BotBase.config.API.endpoints.ESBD.callMethod, params);
     }
