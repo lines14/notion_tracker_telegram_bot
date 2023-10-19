@@ -39,21 +39,24 @@ class Handlers {
 
     static commands(bot) {
         let job;
-        bot.command('start', async (ctx) => {
-            job = schedule.scheduleJob('0 8-20 * * 1-5', async () => {
+        bot.command('run', async (ctx) => {
+            job = schedule.scheduleJob('0 4-16 * * 1-5', async () => {
                 Logger.log('[inf] ▶ Запущено обновление статусов');
                 await this.checkAndNotify(ctx);
             });
+            ctx.deleteMessage();
             Logger.log('[inf] ▶ Cron запущен');
         });
 
         bot.command('update', async (ctx) => {
             Logger.log('[inf] ▶ Запущено обновление статусов');
             await this.checkAndNotify(ctx);
+            ctx.deleteMessage();
         });
 
         bot.command('stop', (ctx) => {
             if (job) job.cancel();
+            ctx.deleteMessage();
             Logger.log('[inf] ▶ Cron остановлен');
         });
     }
