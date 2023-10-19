@@ -1,5 +1,6 @@
 import Notion from './notion.js';
 import Logger from './logger.js';
+import BotBase from './botBase.js';
 import schedule from "node-schedule";
 import StatusChecker from './statusChecker.js';
 
@@ -10,16 +11,21 @@ class Handlers {
         policies = await StatusChecker.getStatusOnes(policies);
         await Notion.updateNotCancelledPolicies(policies);
 
+        const issuedOnesKeys = Object.keys(BotBase.config.API.statuses.ones)
+        .filter((key) => BotBase.config.API.statuses.ones[key] === 'Выписан').map(Number);
+        const issuedESBDKeys = Object.keys(BotBase.config.API.statuses.ESBD)
+        .filter((key) => BotBase.config.API.statuses.ESBD[key] === 'Выписан').map(Number);
+
         let notification = 'Статусы полисов обновлены';
-        // policies.forEach((policy) => {
-        //     if (policy.status.ones === 8 && policy.status.ESBD === 0) {
-        //         notification = notification + `:\n${policy.number} не отменён в 1С и ЕСБД`;
-        //     } else if (policy.status.ones === 8 && policy.status.ESBD !== 0) {
-        //         notification = notification + `:\n${policy.number} не отменён в 1С`;
-        //     } else if (policy.status.ones !== 8 && policy.status.ESBD === 0) {
-        //         notification = notification + `:\n${policy.number} не отменён в ЕСБД`;
-        //     }
-        // });
+        policies.forEach((policy) => {
+            if (issuedOnesKeys.includes(policy.status.ones) && issuedESBDKeys.includes(policy.status.ESBD)) {
+                notification = notification + `:\n${policy.number} не отменён в 1С и ЕСБД`;
+            } else if (issuedOnesKeys.includes(policy.status.ones) && !issuedESBDKeys.includes(policy.status.ESBD)) {
+                notification = notification + `:\n${policy.number} не отменён в 1С`;
+            } else if (!issuedOnesKeys.includes(policy.status.ones) && issuedESBDKeys.includes(policy.status.ESBD)) {
+                notification = notification + `:\n${policy.number} не отменён в ЕСБД`;
+            }
+        });
 
         ctx.reply(notification);
         Logger.log('[inf] ▶ Уведомление отправлено');

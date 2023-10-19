@@ -30,18 +30,18 @@ class Notion {
                         status: { 
                             name: policy.status.ones 
                             ? BotBase.config.API.statuses.ones[policy.status.ones] 
-                            : BotBase.config.API.statuses.ones.default, 
+                            : BotBase.config.API.statuses.default, 
                             color: policy.status.ones 
                             ? BotBase.config.API.statuses.colors.ones[policy.status.ones] 
-                            : BotBase.config.API.statuses.colors.ones.default 
+                            : BotBase.config.API.statuses.colors.default 
                         } 
                     }, 
                     ESBD: { 
                         status: { 
                             name: BotBase.config.API.statuses.ESBD[policy.status.ESBD] 
-                            ?? BotBase.config.API.statuses.ESBD.default, 
+                            ?? BotBase.config.API.statuses.default, 
                             color: BotBase.config.API.statuses.colors.ESBD[policy.status.ESBD] 
-                            ?? BotBase.config.API.statuses.colors.ESBD.default 
+                            ?? BotBase.config.API.statuses.colors.default 
                         } 
                     } 
                 }
