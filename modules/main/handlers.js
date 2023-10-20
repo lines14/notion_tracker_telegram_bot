@@ -63,9 +63,9 @@ class Handlers {
 
         bot.on(message('text'), async (ctx) => {
             for (const key of Object.keys(BotBase.config.API.endpoints.ESBD.submethods)) {
-                if (ctx.message.text.startsWith(key)) {
-                    console.log(ctx.from.id);
-                    await Notion.addPolicy(ctx.message.text);
+                if ((ctx.message.text.startsWith(key) && !BotBase.config.adminsID.includes(ctx.from.id)) 
+                || (ctx.message.text.startsWith(`+${key}`) && BotBase.config.adminsID.includes(ctx.from.id))) {
+                    await Notion.addPolicy(ctx);
                     ctx.reply('Полис добавлен');
                 }
             }

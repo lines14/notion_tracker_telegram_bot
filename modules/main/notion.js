@@ -45,10 +45,16 @@ class Notion {
         Logger.log('[inf] ▶ Статусы полисов обновлены');
     }
 
-    static async addPolicy(policy) {
+    static async addPolicy(ctx) {
+        const policy = ctx.message.text.startsWith('+') 
+        ? ctx.message.text.slice(1) 
+        : ctx.message.text;
         await this.#notion.pages.create({ 
             parent: { database_id: BotBase.config.credentials.NOTION_DB_ID },
-            properties: { number: { title: [{ text: { content: policy } }] } }
+            properties: { 
+                number: { title: [{ text: { content: policy } }] },
+                tracking: { rich_text: [{ text: { content: BotBase.config.adminsID.includes(ctx.from.id) ? 'yes' : '' } }] }
+            }
         });
 
         Logger.log(`[inf] ▶ Полис ${policy} добавлен в базу`);
