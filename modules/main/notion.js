@@ -24,21 +24,21 @@ class Notion {
         return results.map((policy) => ({ id: policy.id, number: policy.properties.number.title[0].plain_text }));
     }
 
-    static async updateNotCancelledPolicies(policies) {
+    static async updateNotCancelledPolicies(policies, admin) {
         policies.forEach(async (policy) => {
             await this.#notion.pages.update({ 
                 page_id: policy.id,
                 properties: { 
                     ones: { 
                         status: { 
-                            name: BotBase.config.API.statuses.ones[policy.status.ones],
-                            color: BotBase.config.API.statuses.colors.ones[policy.status.ones]
+                            name: admin ? BotBase.config.API.statuses.ones[policy.status.ones] : 'Сброшен',
+                            color: admin ? BotBase.config.API.statuses.colors.ones[policy.status.ones] : 'yellow'
                         } 
                     }, 
                     ESBD: { 
                         status: { 
-                            name: BotBase.config.API.statuses.ESBD[policy.status.ESBD],
-                            color: BotBase.config.API.statuses.colors.ESBD[policy.status.ESBD]
+                            name: admin ? BotBase.config.API.statuses.ESBD[policy.status.ESBD] : 'Сброшен',
+                            color: admin ? BotBase.config.API.statuses.colors.ESBD[policy.status.ESBD] : 'yellow'
                         } 
                     } 
                 }

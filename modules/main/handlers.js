@@ -10,7 +10,7 @@ class Handlers {
         let policies = await Notion.getNotCancelledPolicies(BotBase.config.adminsID.includes(ctx.from.id));
         policies = await StatusChecker.getStatusESBD(policies);
         policies = await StatusChecker.getStatusOnes(policies);
-        await Notion.updateNotCancelledPolicies(policies);
+        await Notion.updateNotCancelledPolicies(policies, BotBase.config.adminsID.includes(ctx.from.id));
 
         const issuedOnesKeys = Object.keys(BotBase.config.API.statuses.ones)
         .filter((key) => BotBase.config.API.statuses.ones[key] === 'Выписан').map(Number);
@@ -39,7 +39,7 @@ class Handlers {
         });
 
         if (notification.length === 24) notification = 'Выписанных тестовых полисов на PROD нет';
-        if (notification.length === 15) notification = 'Выписанных полисов на PROD нет';
+        if (notification.length === 15) notification = '❌ Выписанных полисов на PROD нет\n(список проверяемых полисов был очищен, добавьте другие или прежние повторно)';
 
         ctx.reply(notification);
         Logger.log('[inf] ▶ Уведомление отправлено');
