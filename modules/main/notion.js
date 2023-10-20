@@ -42,7 +42,16 @@ class Notion {
             });
         });
 
-        Logger.log('[inf] ▶ Статусы полисов обновлены')
+        Logger.log('[inf] ▶ Статусы полисов обновлены');
+    }
+
+    static async addPolicy(policy) {
+        await this.#notion.pages.create({ 
+            parent: { database_id: BotBase.config.credentials.NOTION_DB_ID },
+            properties: { number: { title: [{ text: { content: policy } }] } }
+        });
+
+        Logger.log(`[inf] ▶ Полис ${policy} добавлен в базу`);
     }
 }
 

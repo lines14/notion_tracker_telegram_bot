@@ -1,7 +1,8 @@
 import Notion from './notion.js';
 import Logger from './logger.js';
 import BotBase from './botBase.js';
-import schedule from "node-schedule";
+import schedule from 'node-schedule';
+import { message } from 'telegraf/filters';
 import StatusChecker from './statusChecker.js';
 
 class Handlers {
@@ -58,6 +59,15 @@ class Handlers {
             ctx.deleteMessage();
             if (job) job.cancel();
             Logger.log('[inf] ▶ Cron остановлен');
+        });
+
+        bot.on(message('text'), async (ctx) => {
+            for (const key of Object.keys(BotBase.config.API.endpoints.ESBD.submethods)) {
+                if (ctx.message.text.startsWith(key)) {
+                    await Notion.addPolicy(ctx.message.text);
+                    ctx.reply('Полис добавлен');
+                }
+            }
         });
     }
 }
