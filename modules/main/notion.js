@@ -9,16 +9,19 @@ class Notion {
 		this.#notion = new Client({ auth: BotBase.config.credentials.NOTION_TOKEN });
 	}
 
-    static async getNotCancelledPolicies() {
-        const response = await this.#notion.databases.query({ database_id: BotBase.config.credentials.NOTION_DB_ID });
-        const filtered = response.results.filter((policy) => {
+    static async getNotCancelledPolicies(admin) {
+        let results = (await this.#notion.databases.query({ database_id: BotBase.config.credentials.NOTION_DB_ID })).results;
+        results = admin 
+        ? results.filter((policy) => policy.properties.tracking.status.name === 'Да') 
+        : results.filter((policy) => policy.properties.tracking.status.name === 'Нет');
+        results = results.filter((policy) => {
             return policy.properties.ones.status.name === 'Выписан'
             || policy.properties.ESBD.status.name === 'Выписан'
             || policy.properties.ones.status.name === 'Статус неизвестен' 
             || policy.properties.ESBD.status.name === 'Статус неизвестен';
         });
 
-        return filtered.map((policy) => ({ id: policy.id, number: policy.properties.number.title[0].plain_text }));
+        return results.map((policy) => ({ id: policy.id, number: policy.properties.number.title[0].plain_text }));
     }
 
     static async updateNotCancelledPolicies(policies) {
@@ -53,7 +56,12 @@ class Notion {
             parent: { database_id: BotBase.config.credentials.NOTION_DB_ID },
             properties: { 
                 number: { title: [{ text: { content: policy } }] },
-                tracking: { rich_text: [{ text: { content: BotBase.config.adminsID.includes(ctx.from.id) ? 'yes' : '' } }] }
+                tracking: {
+                    status: { 
+                        name: BotBase.config.adminsID.includes(ctx.from.id) ? 'Да' : 'Нет',
+                        color: BotBase.config.adminsID.includes(ctx.from.id) ? 'blue' : 'purple'
+                    } 
+                }
             }
         });
 

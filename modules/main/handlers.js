@@ -7,7 +7,7 @@ import StatusChecker from './statusChecker.js';
 
 class Handlers {
     static async checkAndNotify(ctx) {
-        let policies = await Notion.getNotCancelledPolicies();
+        let policies = await Notion.getNotCancelledPolicies(BotBase.config.adminsID.includes(ctx.from.id));
         policies = await StatusChecker.getStatusESBD(policies);
         policies = await StatusChecker.getStatusOnes(policies);
         await Notion.updateNotCancelledPolicies(policies);
@@ -17,22 +17,29 @@ class Handlers {
         const issuedESBDKeys = Object.keys(BotBase.config.API.statuses.ESBD)
         .filter((key) => BotBase.config.API.statuses.ESBD[key] === 'Выписан').map(Number);
 
-        let notification = 'Тестовые полисы на PROD:';
+        let notification = BotBase.config.adminsID.includes(ctx.from.id) 
+        ? 'Тестовые полисы на PROD:' 
+        : 'Полисы на PROD:';
         policies.forEach((policy) => {
             policy.notifications = [];
             if (policy.status.ones === 'default') policy.notifications.push('\n❓статус 1С неизвестен');
             if (policy.status.ESBD === 'default' ) policy.notifications.push('\n❓статус ЕСБД неизвестен');
-            if (issuedOnesKeys.includes(policy.status.ones)) policy.notifications.push('\n❗не отменён в 1С');
-            if (issuedESBDKeys.includes(policy.status.ESBD)) policy.notifications.push('\n❗не отменён в ЕСБД');
+            if (issuedOnesKeys.includes(policy.status.ones)) {
+                policy.notifications.push(BotBase.config.adminsID.includes(ctx.from.id) ? '\n❗не отменён в 1С' : '\n✅ выписан в 1С');
+            }
+
+            if (issuedESBDKeys.includes(policy.status.ESBD)) {
+                policy.notifications.push(BotBase.config.adminsID.includes(ctx.from.id) ? '\n❗не отменён в ЕСБД' : '\n✅ выписан в ЕСБД');
+            }
+
             if (policy.notifications.length !== 0) {
                 policy.notifications.unshift(`\n\n${policy.number}:`);
                 policy.notifications.forEach((message) => notification = notification + message);
             }
         });
 
-        if (notification.length === 24) {
-            notification = 'Выписанных тестовых полисов на PROD нет';
-        }
+        if (notification.length === 24) notification = 'Выписанных тестовых полисов на PROD нет';
+        if (notification.length === 15) notification = 'Выписанных полисов на PROD нет';
 
         ctx.reply(notification);
         Logger.log('[inf] ▶ Уведомление отправлено');
@@ -41,12 +48,15 @@ class Handlers {
     static commands(bot) {
         let job;
         bot.command('run', async (ctx) => {
-            ctx.deleteMessage();
-            job = schedule.scheduleJob('0 5-16 * * 1-5', async () => {
-                Logger.log('[inf] ▶ Запущено обновление статусов');
-                await this.checkAndNotify(ctx);
-            });
-            Logger.log('[inf] ▶ Cron запущен');
+            if (BotBase.config.adminsID.includes(ctx.from.id)) {
+                ctx.deleteMessage();
+                job = schedule.scheduleJob('0 5-16 * * 1-5', async () => {
+                    Logger.log('[inf] ▶ Запущено обновление статусов');
+                    await this.checkAndNotify(ctx);
+                });
+                
+                Logger.log('[inf] ▶ Cron запущен');
+            }
         });
 
         bot.command('update', async (ctx) => {
@@ -56,9 +66,11 @@ class Handlers {
         });
 
         bot.command('stop', (ctx) => {
-            ctx.deleteMessage();
-            if (job) job.cancel();
-            Logger.log('[inf] ▶ Cron остановлен');
+            if (BotBase.config.adminsID.includes(ctx.from.id)) {
+                ctx.deleteMessage();
+                if (job) job.cancel();
+                Logger.log('[inf] ▶ Cron остановлен');
+            }
         });
 
         bot.on(message('text'), async (ctx) => {
