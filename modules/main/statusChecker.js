@@ -20,7 +20,7 @@ class StatusChecker {
                 }
             }
 
-            if (!policy.status.ESBD) policy.status.ESBD = 'default';
+            if (!policy.status.ESBD && policy.status.ESBD !== 0) policy.status.ESBD = 'default';
         }
 
         return policies;
