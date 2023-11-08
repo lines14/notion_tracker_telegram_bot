@@ -15,7 +15,12 @@ class StatusChecker {
                         const productKey = key === '901' 
                         ? 'Policy' 
                         : submethod.split('_').reverse().pop().slice(3).split(/(?=[A-Z])/).join('_').toUpperCase();
-                        policy.status.ESBD = response.data.data[`${submethod}Result`][productKey].RESCINDING_REASON_ID;
+                        const contracts = response.data.data[`${submethod}Result`][productKey];
+                        if (Array.isArray(contracts)) {
+                            policy.status.ESBD = contracts[contracts.length - 1].RESCINDING_REASON_ID;
+                        } else {
+                            policy.status.ESBD = contracts.RESCINDING_REASON_ID;
+                        }
                     }
                 }
             }
