@@ -50,7 +50,7 @@ class Handlers {
         bot.command('run', async (ctx) => {
             if (BotBase.config.adminsID.includes(ctx.from.id)) {
                 ctx.deleteMessage();
-                job = schedule.scheduleJob('0 7-15/2 * * 1-5', async () => {
+                job = schedule.scheduleJob('0 4-12/2 * * 1-5', async () => {
                     Logger.log('[inf] ▶ Запущено обновление статусов');
                     await this.checkAndNotify(ctx);
                 });
