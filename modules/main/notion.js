@@ -18,7 +18,8 @@ class Notion {
             return policy.properties.ones.status.name === 'Выписан'
             || policy.properties.ESBD.status.name === 'Выписан'
             || policy.properties.ones.status.name === 'Статус неизвестен' 
-            || policy.properties.ESBD.status.name === 'Статус неизвестен';
+            || policy.properties.ESBD.status.name === 'Статус неизвестен'
+            || policy.properties.ESBD.status.name === 'Черновик';
         });
 
         return results.map((policy) => ({ id: policy.id, number: policy.properties.number.title[0].plain_text }));

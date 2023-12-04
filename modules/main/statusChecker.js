@@ -16,11 +16,18 @@ class StatusChecker {
                         ? 'Policy' 
                         : submethod.split('_').reverse().pop().slice(3).split(/(?=[A-Z])/).join('_').toUpperCase();
                         const contracts = response.data.data[`${submethod}Result`][productKey];
+                        let policyStatus;
+                        let contractState;
                         if (Array.isArray(contracts)) {
-                            policy.status.ESBD = contracts[contracts.length - 1].RESCINDING_REASON_ID;
+                            policyStatus = contracts[contracts.length - 1].RESCINDING_REASON_ID;
+                            contractState = contracts[contracts.length - 1].CONTRACT_STATE;
                         } else {
-                            policy.status.ESBD = contracts.RESCINDING_REASON_ID;
+                            policyStatus = contracts.RESCINDING_REASON_ID;
+                            contractState = contracts.CONTRACT_STATE;
                         }
+
+                        policy.status.ESBD = policyStatus;
+                        if (contractState === 'Черновик') policy.status.ESBD = contractState;
                     }
                 }
             }

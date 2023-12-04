@@ -23,7 +23,7 @@ class Handlers {
         policies.forEach((policy) => {
             policy.notifications = [];
             if (policy.status.ones === 'default') policy.notifications.push('\n❓статус 1С неизвестен');
-            if (policy.status.ESBD === 'default' ) policy.notifications.push('\n❓статус ЕСБД неизвестен');
+            if (policy.status.ESBD === 'default') policy.notifications.push('\n❓статус ЕСБД неизвестен');
             if (issuedOnesKeys.includes(policy.status.ones)) {
                 policy.notifications.push(BotBase.config.adminsID.includes(ctx.from.id) ? '\n❗не отменён в 1С' : '\n✅ выписан в 1С');
             }
@@ -31,6 +31,8 @@ class Handlers {
             if (issuedESBDKeys.includes(policy.status.ESBD)) {
                 policy.notifications.push(BotBase.config.adminsID.includes(ctx.from.id) ? '\n❗не отменён в ЕСБД' : '\n✅ выписан в ЕСБД');
             }
+
+            if (policy.status.ESBD === 'Черновик') policy.notifications.push('\n📌черновик в ЕСБД');
 
             if (policy.notifications.length !== 0) {
                 policy.notifications.unshift(`\n\n${policy.number}:`);
