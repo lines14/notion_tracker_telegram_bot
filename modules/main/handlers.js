@@ -57,6 +57,7 @@ class Handlers {
                     await this.checkAndNotify(ctx);
                 });
                 
+                ctx.reply('Cron запущен');
                 Logger.log('[inf] ▶ Cron запущен');
             }
         });
@@ -71,6 +72,7 @@ class Handlers {
             if (BotBase.config.adminsID.includes(ctx.from.id)) {
                 ctx.deleteMessage();
                 if (job) job.cancel();
+                ctx.reply('Cron остановлен');
                 Logger.log('[inf] ▶ Cron остановлен');
             }
         });
