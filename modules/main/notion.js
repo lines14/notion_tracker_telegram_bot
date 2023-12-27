@@ -59,8 +59,8 @@ class Notion {
                 number: { title: [{ text: { content: policy } }] },
                 tracking: {
                     status: { 
-                        name: BotBase.config.adminsID.includes(ctx.from.id) ? 'Да' : 'Нет',
-                        color: BotBase.config.adminsID.includes(ctx.from.id) ? 'blue' : 'purple'
+                        name: BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id) ? 'Да' : 'Нет',
+                        color: BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id) ? 'blue' : 'purple'
                     } 
                 }
             }

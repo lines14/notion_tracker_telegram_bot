@@ -7,29 +7,28 @@ import StatusChecker from './statusChecker.js';
 
 class Handlers {
     static async checkAndNotify(ctx) {
-        let policies = await Notion.getNotCancelledPolicies(BotBase.config.adminsID.includes(ctx.from.id));
+        let policies = await Notion.getNotCancelledPolicies(BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id));
         policies = await StatusChecker.getStatusESBD(policies);
         policies = await StatusChecker.getStatusOnes(policies);
-        await Notion.updateNotCancelledPolicies(policies, BotBase.config.adminsID.includes(ctx.from.id));
+        await Notion.updateNotCancelledPolicies(policies, BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id));
 
         const issuedOnesKeys = Object.keys(BotBase.config.API.statuses.ones)
         .filter((key) => BotBase.config.API.statuses.ones[key] === 'Выписан').map(Number);
         const issuedESBDKeys = Object.keys(BotBase.config.API.statuses.ESBD)
         .filter((key) => BotBase.config.API.statuses.ESBD[key] === 'Выписан').map(Number);
 
-        let notification = BotBase.config.adminsID.includes(ctx.from.id) 
-        ? 'Тестовые полисы на PROD:' 
-        : 'Полисы на PROD:';
+        let notification = BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id) ? 'Тестовые полисы на PROD:' : 'Полисы на PROD:';
+        
         policies.forEach((policy) => {
             policy.notifications = [];
             if (policy.status.ones === 'default') policy.notifications.push('\n❓статус 1С неизвестен');
             if (policy.status.ESBD === 'default') policy.notifications.push('\n❓статус ЕСБД неизвестен');
             if (issuedOnesKeys.includes(policy.status.ones)) {
-                policy.notifications.push(BotBase.config.adminsID.includes(ctx.from.id) ? '\n❗не отменён в 1С' : '\n✅ выписан в 1С');
+                policy.notifications.push(BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id) ? '\n❗не отменён в 1С' : '\n✅ выписан в 1С');
             }
 
             if (issuedESBDKeys.includes(policy.status.ESBD)) {
-                policy.notifications.push(BotBase.config.adminsID.includes(ctx.from.id) ? '\n❗не отменён в ЕСБД' : '\n✅ выписан в ЕСБД');
+                policy.notifications.push(BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id) ? '\n❗не отменён в ЕСБД' : '\n✅ выписан в ЕСБД');
             }
 
             if (policy.status.ESBD === 'Черновик') policy.notifications.push('\n📌черновик в ЕСБД');
@@ -50,7 +49,7 @@ class Handlers {
     static commands(bot) {
         let job;
         bot.command('run', async (ctx) => {
-            if (BotBase.config.adminsID.includes(ctx.from.id)) {
+            if (BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
                 job = schedule.scheduleJob('0 4-12/2 * * 1-5', async () => {
                     Logger.log('[inf] ▶ Запущено обновление статусов');
@@ -69,7 +68,7 @@ class Handlers {
         });
 
         bot.command('stop', (ctx) => {
-            if (BotBase.config.adminsID.includes(ctx.from.id)) {
+            if (BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
                 if (job) job.cancel();
                 ctx.reply('Cron остановлен');
@@ -79,8 +78,8 @@ class Handlers {
 
         bot.on(message('text'), async (ctx) => {
             for (const key of Object.keys(BotBase.config.API.endpoints.ESBD.submethods)) {
-                if ((ctx.message.text.startsWith(key) && !BotBase.config.adminsID.includes(ctx.from.id)) 
-                || (ctx.message.text.startsWith(`+${key}`) && BotBase.config.adminsID.includes(ctx.from.id))) {
+                if ((ctx.message.text.startsWith(key) && !(BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id))) 
+                || (ctx.message.text.startsWith(`+${key}`) && (BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id)))) {
                     await Notion.addPolicy(ctx);
                     ctx.reply('Полис добавлен');
                 }
