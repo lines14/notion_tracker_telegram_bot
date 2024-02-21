@@ -23,7 +23,7 @@ class AuthAPI extends BaseAPI {
         const params = user 
         ? { login: user.login, password: user.password } 
         : { login: this.#login, password: this.#password };
-        Logger.log(`[inf]   login as ${params.login}:`);
+        await Logger.log(`[inf]   login as ${params.login}:`);
 
         return (await this.post(BotBase.config.API.endpoints.auth.login, params)).data.data.access_token;
     }

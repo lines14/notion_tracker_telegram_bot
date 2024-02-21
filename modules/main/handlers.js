@@ -43,7 +43,7 @@ class Handlers {
         if (notification.length === 15) notification = '❌ Выписанных полисов на PROD нет\n(список проверяемых полисов был очищен, добавьте другие или прежние повторно)';
 
         ctx.reply(notification);
-        Logger.log('[inf] ▶ Уведомление отправлено');
+        await Logger.log('[inf] ▶ Уведомление отправлено');
     }
 
     static commands(bot) {
@@ -52,27 +52,27 @@ class Handlers {
             if (BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
                 job = schedule.scheduleJob('0 4-12/2 * * 1-5', async () => {
-                    Logger.log('[inf] ▶ Запущено обновление статусов');
+                    await Logger.log('[inf] ▶ Запущено обновление статусов');
                     await this.checkAndNotify(ctx);
                 });
                 
                 ctx.reply('Cron запущен');
-                Logger.log('[inf] ▶ Cron запущен');
+                await Logger.log('[inf] ▶ Cron запущен');
             }
         });
 
         bot.command('update', async (ctx) => {
             ctx.deleteMessage();
-            Logger.log('[inf] ▶ Запущено обновление статусов');
+            await Logger.log('[inf] ▶ Запущено обновление статусов');
             await this.checkAndNotify(ctx);
         });
 
-        bot.command('stop', (ctx) => {
+        bot.command('stop', async (ctx) => {
             if (BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
                 if (job) job.cancel();
                 ctx.reply('Cron остановлен');
-                Logger.log('[inf] ▶ Cron остановлен');
+                await Logger.log('[inf] ▶ Cron остановлен');
             }
         });
 

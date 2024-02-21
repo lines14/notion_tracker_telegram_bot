@@ -9,4 +9,4 @@ Notion.init();
 Handlers.commands(BotBase.bot);
 
 BotBase.bot.launch();
-Logger.log('[inf] ▶ Бот успешно запущен');
+await Logger.log('[inf] ▶ Бот успешно запущен');

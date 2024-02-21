@@ -15,4 +15,5 @@ BotBase.bot.launch({
         hookPath: `/${BotBase.config.credentials.TG_TOKEN}`
     } 
 });
-Logger.log('[inf] ▶ Бот успешно запущен');
+
+await Logger.log('[inf] ▶ Бот успешно запущен');

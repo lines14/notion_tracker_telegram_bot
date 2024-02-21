@@ -4,6 +4,7 @@
         "@notionhq/client": "^2.2.13",
         "axios": "^1.5.1",
         "dotenv": "^16.3.1",
+        "filesize": "^10.1.0",
         "moment": "^2.29.4",
         "node-schedule": "^2.1.1",
         "telegraf": "^4.14.0"

@@ -26,40 +26,40 @@ class BaseAPI {
     }
 
     async get(endpoint, params) {
-        Logger.log(`[req] ▶ get ${JSON.stringify(params ? params : {})} from ${endpoint}:`);
+        await Logger.log(`[req] ▶ get ${JSON.stringify(params ? params : {})} from ${endpoint}:`);
         try {
             const response = await this.#axiosInstance.get(`/${endpoint}`, { params });
-            Logger.log(`[res]   status code: ${response.status}`);
+            await Logger.log(`[res]   status code: ${response.status}`);
             return response;
         } catch (error) {
-            Logger.log(`[res]   status code: ${error.response.status}`);
-            Logger.log(`[res]   body: ${JSON.stringify(error.response.data)}`);
+            await Logger.log(`[res]   status code: ${error.response.status}`);
+            await Logger.log(`[res]   body: ${JSON.stringify(error.response.data)}`);
             return error.response;
         }
     }
 
     async post(endpoint, params) {
-        Logger.log(`[req] ▶ post ${JSON.stringify(params ? params : {})} to ${endpoint}:`);
+        await Logger.log(`[req] ▶ post ${JSON.stringify(params ? params : {})} to ${endpoint}:`);
         try {
             const response = await this.#axiosInstance.post(`/${endpoint}`, params);
-            Logger.log(`[res]   status code: ${response.status}`);
+            await Logger.log(`[res]   status code: ${response.status}`);
             return response;
         } catch (error) {
-            Logger.log(`[res]   status code: ${error.response.status}`);
-            Logger.log(`[res]   body: ${JSON.stringify(error.response.data)}`);
+            await Logger.log(`[res]   status code: ${error.response.status}`);
+            await Logger.log(`[res]   body: ${JSON.stringify(error.response.data)}`);
             return error.response;
         }
     }
 
     async patch(endpoint, params) {
-        Logger.log(`[req] ▶ patch ${JSON.stringify(params ? params : {})} to ${endpoint}:`);
+        await Logger.log(`[req] ▶ patch ${JSON.stringify(params ? params : {})} to ${endpoint}:`);
         try {
             const response = await this.#axiosInstance.patch(`/${endpoint}`, params);
-            Logger.log(`[res]   status code: ${response.status}`);
+            await Logger.log(`[res]   status code: ${response.status}`);
             return response;
         } catch (error) {
-            Logger.log(`[res]   status code: ${error.response.status}`);
-            Logger.log(`[res]   body: ${JSON.stringify(error.response.data)}`);
+            await Logger.log(`[res]   status code: ${error.response.status}`);
+            await Logger.log(`[res]   body: ${JSON.stringify(error.response.data)}`);
             return error.response;
         }
     }

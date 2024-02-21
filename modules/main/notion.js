@@ -46,7 +46,7 @@ class Notion {
             });
         });
 
-        Logger.log('[inf] ▶ Статусы полисов обновлены');
+        await Logger.log('[inf] ▶ Статусы полисов обновлены');
     }
 
     static async addPolicy(ctx) {
@@ -66,7 +66,7 @@ class Notion {
             }
         });
 
-        Logger.log(`[inf] ▶ Полис ${policy} добавлен в базу`);
+        await Logger.log(`[inf] ▶ Полис ${policy} добавлен в базу`);
     }
 }
 
