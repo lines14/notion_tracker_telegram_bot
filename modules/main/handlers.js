@@ -46,12 +46,12 @@ class Handlers {
         await Logger.log('[inf] ▶ Уведомление отправлено');
     }
 
-    static commands(bot) {
+    static commands(bot, crontab) {
         let job;
         bot.command('run', async (ctx) => {
             if (BotBase.config.adminsID.includes(ctx.from.id) || BotBase.config.adminsID.includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
-                job = schedule.scheduleJob('0 4-12/2 * * 1-5', async () => {
+                job = schedule.scheduleJob(crontab, async () => {
                     await Logger.log('[inf] ▶ Запущено обновление статусов');
                     await this.checkAndNotify(ctx);
                 });

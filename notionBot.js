@@ -6,7 +6,7 @@ import Handlers from './modules/main/handlers.js';
 BotBase.init();
 Notion.init();
 
-Handlers.commands(BotBase.bot);
+Handlers.commands(BotBase.bot, BotBase.config.crontab);
 
 BotBase.bot.launch({ 
     webhook: { 
