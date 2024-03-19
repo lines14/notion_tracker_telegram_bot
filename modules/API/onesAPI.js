@@ -28,7 +28,7 @@ class onesAPI extends BaseAPI {
             }
         }
 
-        return await this.#API.get(BotBase.config.API.endpoints.ones.callMethod, params);
+        return await this.#API.post(BotBase.config.API.endpoints.ones.callMethod, params);
     }
 }
 
