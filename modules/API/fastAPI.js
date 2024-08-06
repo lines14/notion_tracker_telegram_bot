@@ -39,7 +39,7 @@ class FastAPI extends BaseAPI {
         });
     }
 
-    async get() {
+    async getRequest() {
         return this.#API.get(BotBase.config.API.endpoints.fastAPI.get);
     }
 }

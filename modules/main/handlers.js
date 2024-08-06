@@ -83,7 +83,8 @@ class Handlers {
         bot.command('get', async (ctx) => {
             ctx.deleteMessage();
             await fastAPI.auth();
-            const response = await fastAPI.get();
+            await fastAPI.setToken();
+            const response = await fastAPI.getRequest();
             ctx.reply(response.data.message);
         });
 
