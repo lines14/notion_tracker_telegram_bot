@@ -4,7 +4,7 @@ import BaseAPI from '../main/baseAPI.js';
 import BotBase from '../main/botBase.js';
 dotenv.config({ override: true });
 
-class onesAPI extends BaseAPI {
+class OnesAPI extends BaseAPI {
     #API;
 
     constructor(options = {}) {
@@ -17,7 +17,7 @@ class onesAPI extends BaseAPI {
     }
 
     async setToken() {
-        this.#API = new onesAPI({ headers: { Authorization: `Bearer ${await authAPI.auth()}` } });
+        this.#API = new OnesAPI({ headers: { Authorization: `Bearer ${await authAPI.auth()}` } });
     }
 
     async getPolicy(num_policy) {
@@ -32,4 +32,4 @@ class onesAPI extends BaseAPI {
     }
 }
 
-export default new onesAPI();
+export default new OnesAPI();
