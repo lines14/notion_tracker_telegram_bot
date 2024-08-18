@@ -11,7 +11,7 @@ class SpendingTrackerAPI extends BaseAPI {
 
     constructor(options = {}) {
         super(
-            options.baseURL || process.env.FASTAPI_URL,
+            options.baseURL || process.env.SPENDING_TRACKER_API_URL,
             options.logString ?? '[inf] ▶ set base API URL:',
             options.timeout,
             options.headers
@@ -28,11 +28,11 @@ class SpendingTrackerAPI extends BaseAPI {
 
         await Logger.log(`[inf]   login as ${params.login}:`);
 
-        return (await this.post(BotBase.config.API.endpoints.fastAPI.auth, params)).data.data;
+        return (await this.post(BotBase.config.API.endpoints.spendingTrackerAPI.auth, params)).data.data;
     }
 
     async setToken() {
-        this.#API = new FastAPI({ 
+        this.#API = new SpendingTrackerAPI({ 
             headers: { 
                 Authorization: `Bearer ${await this.auth({ APIName: 'Spending tracker API' })}` 
             } 
