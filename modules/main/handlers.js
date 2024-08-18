@@ -2,7 +2,7 @@ import Notion from './notion.js';
 import Logger from './logger.js';
 import BotBase from './botBase.js';
 import schedule from 'node-schedule';
-import fastAPI from '../API/fastAPI.js';
+import spendingTrackerAPI from '../API/spendingTrackerAPI.js';
 import { message } from 'telegraf/filters';
 import StatusChecker from './statusChecker.js';
 
@@ -80,11 +80,11 @@ class Handlers {
             await this.checkAndNotify(ctx);
         });
 
-        bot.command('get', async (ctx) => {
+        bot.command('greetings', async (ctx) => {
             ctx.deleteMessage();
-            await fastAPI.auth();
-            await fastAPI.setToken();
-            const response = await fastAPI.getRequest();
+            await spendingTrackerAPI.auth();
+            await spendingTrackerAPI.setToken();
+            const response = await spendingTrackerAPI.greetings();
             ctx.reply(response.data.message);
         });
 

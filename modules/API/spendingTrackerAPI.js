@@ -4,7 +4,7 @@ import BaseAPI from '../main/baseAPI.js';
 import BotBase from '../main/botBase.js';
 dotenv.config({ override: true });
 
-class FastAPI extends BaseAPI {
+class SpendingTrackerAPI extends BaseAPI {
     #API;
     #login;
     #password;
@@ -34,14 +34,14 @@ class FastAPI extends BaseAPI {
     async setToken() {
         this.#API = new FastAPI({ 
             headers: { 
-                Authorization: `Bearer ${await this.auth({ APIName: 'Fast API' })}` 
+                Authorization: `Bearer ${await this.auth({ APIName: 'Spending tracker API' })}` 
             } 
         });
     }
 
-    async getRequest() {
-        return this.#API.get(BotBase.config.API.endpoints.fastAPI.get);
+    async greetings() {
+        return this.#API.get(BotBase.config.API.endpoints.spendingTrackerAPI.greetings);
     }
 }
 
-export default new FastAPI();
+export default new SpendingTrackerAPI();
