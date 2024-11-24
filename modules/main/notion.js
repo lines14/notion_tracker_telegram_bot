@@ -1,16 +1,18 @@
+import dotenv from 'dotenv';
 import Logger from './logger.js';
 import BotBase from './botBase.js';
 import { Client } from '@notionhq/client';
+dotenv.config({ override: true });
 
 class Notion {
     static #notion;
 
 	static init() {
-		this.#notion = new Client({ auth: BotBase.config.credentials.NOTION_TOKEN });
+		this.#notion = new Client({ auth: process.env.NOTION_TOKEN });
 	}
 
     static async getNotCancelledPolicies(admin) {
-        let results = (await this.#notion.databases.query({ database_id: BotBase.config.credentials.NOTION_DB_ID })).results;
+        let results = (await this.#notion.databases.query({ database_id: process.env.NOTION_DB_ID })).results;
         results = admin 
         ? results.filter((policy) => policy.properties.tracking.status.name === 'Да') 
         : results.filter((policy) => policy.properties.tracking.status.name === 'Нет');
@@ -54,17 +56,17 @@ class Notion {
         ? ctx.message.text.slice(1) 
         : ctx.message.text;
         await this.#notion.pages.create({ 
-            parent: { database_id: BotBase.config.credentials.NOTION_DB_ID },
+            parent: { database_id: process.env.NOTION_DB_ID },
             properties: { 
                 number: { title: [{ text: { content: policy } }] },
                 tracking: {
                     status: { 
-                        name: BotBase.config.adminsID.includes(ctx.from.id) 
-                        || BotBase.config.adminsID.includes(ctx.message.chat.id) 
+                        name: JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+                        || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id) 
                         ? 'Да' 
                         : 'Нет',
-                        color: BotBase.config.adminsID.includes(ctx.from.id) 
-                        || BotBase.config.adminsID.includes(ctx.message.chat.id) 
+                        color: JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+                        || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id) 
                         ? 'blue' 
                         : 'purple'
                     } 

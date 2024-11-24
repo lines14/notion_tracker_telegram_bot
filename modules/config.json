@@ -1,0 +1,87 @@
+{
+     "API": {
+         "endpoints": {
+            "spendingTrackerAPI": {
+                "auth": "api/auth",
+                "greetings": "api/greetings"
+            },
+             "auth": {
+                 "login": "api/login"
+             },
+             "ones": {
+                 "callMethod": "api/ones/v2/ones/call-method"
+             },
+             "ESBD": {
+                 "callMethod": "api/esbd/call-method",
+                 "submethods": {
+                     "122": "GetContractComplex_By_Number",
+                     "802": "GetContractDsHealth_By_Number",
+                     "804": "GetContractComplex_By_Number",
+                     "911": "GetContractOsTourist_By_Number",
+                     "200": "GetContractDsAuto_By_Number",
+                     "203": "GetContractDsAuto_By_Number",
+                     "206": "GetContractDsAuto_By_Number",
+                     "219": "GetContractDsAuto_By_Number",
+                     "101": "GetContractDsProperty_By_Number",
+                     "510": "GetContractDsAccident_By_Number",
+                     "304": "GetContractDsCargo_By_Number",
+                     "901": "GetPoliciesByNumber"
+                 }
+             }
+         },
+         "statuses": {
+             "ones": {
+                 "default": "Статус неизвестен",
+                 "1": "Выписан",
+                 "2": "Выписан",
+                 "8": "Выписан",
+                 "9": "Выписан",
+                 "0": "Отменён",
+                 "3": "Отменён",
+                 "6": "Отменён",
+                 "13": "Отменён",
+                 "удаление": "Отменён"
+             },
+             "ESBD": {
+                 "default": "Статус неизвестен",
+                 "-1": "Выписан",
+                 "0": "Выписан",
+                 "4": "Выписан",
+                 "10": "Выписан",
+                 "1": "Отменён",
+                 "2": "Отменён",
+                 "5": "Отменён",
+                 "6": "Отменён",
+                 "7": "Отменён",
+                 "Черновик": "Черновик"
+             },
+             "colors": {
+                 "ones": {
+                     "default": "default",
+                     "1": "red",
+                     "2": "red",
+                     "8": "red",
+                     "9": "red",
+                     "0": "green",
+                     "3": "green",
+                     "6": "green",
+                     "13": "green",
+                     "удаление": "green"
+                 },
+                 "ESBD": {
+                     "default": "default",
+                     "-1": "red",
+                     "0": "red",
+                     "4": "red",
+                     "10": "red",
+                     "1": "green",
+                     "2": "green",
+                     "5": "green",
+                     "6": "green",
+                     "7": "green",
+                     "Черновик": "pink"
+                 }
+             }
+         }
+     }
+ }

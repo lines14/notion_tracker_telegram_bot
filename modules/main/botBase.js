@@ -1,5 +1,7 @@
+import dotenv from 'dotenv';
 import { Telegraf } from 'telegraf';
 import config from '../config.json' assert { type: 'json' };
+dotenv.config({ override: true });
 
 class BotBase {
 	static #bot;
@@ -7,7 +9,7 @@ class BotBase {
 
 	static init() {
 		this.#config = JSON.parse(JSON.stringify(config));
-		this.#bot = new Telegraf(this.config.credentials.TG_TOKEN, { handlerTimeout: Infinity });
+		this.#bot = new Telegraf(process.env.TG_TOKEN, { handlerTimeout: Infinity });
 	}
 
 	static get config() {

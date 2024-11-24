@@ -1,7 +1,9 @@
+import dotenv from 'dotenv';
 import Logger from './modules/main/logger.js';
 import Notion from './modules/main/notion.js';
 import BotBase from './modules/main/botBase.js';
 import Handlers from './modules/main/handlers.js';
+dotenv.config({ override: true });
 
 BotBase.init();
 Notion.init();
@@ -10,9 +12,9 @@ Handlers.commands(BotBase.bot, BotBase.config.crontab);
 
 BotBase.bot.launch({ 
     webhook: { 
-        domain: BotBase.config.credentials.WEBHOOK_HOST, 
-        port: Number(BotBase.config.credentials.WEBAPP_PORT),
-        hookPath: `/${BotBase.config.credentials.TG_TOKEN}`
+        domain: process.env.WEBHOOK_HOST, 
+        port: Number(process.env.WEBAPP_PORT),
+        hookPath: `/${process.env.TG_TOKEN}`
     } 
 });
 

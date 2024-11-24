@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import Notion from './notion.js';
 import Logger from './logger.js';
 import BotBase from './botBase.js';
@@ -5,23 +6,24 @@ import schedule from 'node-schedule';
 import spendingTrackerAPI from '../API/spendingTrackerAPI.js';
 import { message } from 'telegraf/filters';
 import StatusChecker from './statusChecker.js';
+dotenv.config({ override: true });
 
 class Handlers {
     static async checkAndNotify(ctx) {
-        let policies = await Notion.getNotCancelledPolicies(BotBase.config.adminsID.includes(ctx.from.id) 
-        || BotBase.config.adminsID.includes(ctx.message.chat.id));
+        let policies = await Notion.getNotCancelledPolicies(JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+        || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id));
         policies = await StatusChecker.getStatusESBD(policies);
         policies = await StatusChecker.getStatusOnes(policies);
-        await Notion.updateNotCancelledPolicies(policies, BotBase.config.adminsID.includes(ctx.from.id) 
-        || BotBase.config.adminsID.includes(ctx.message.chat.id));
+        await Notion.updateNotCancelledPolicies(policies, JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+        || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id));
 
         const issuedOnesKeys = Object.keys(BotBase.config.API.statuses.ones)
         .filter((key) => BotBase.config.API.statuses.ones[key] === 'Выписан').map(Number);
         const issuedESBDKeys = Object.keys(BotBase.config.API.statuses.ESBD)
         .filter((key) => BotBase.config.API.statuses.ESBD[key] === 'Выписан').map(Number);
 
-        let notification = BotBase.config.adminsID.includes(ctx.from.id) 
-        || BotBase.config.adminsID.includes(ctx.message.chat.id) 
+        let notification = JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+        || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id) 
         ? 'Тестовые полисы на PROD:' 
         : 'Полисы на PROD:';
         
@@ -30,15 +32,15 @@ class Handlers {
             if (policy.status.ones === 'default') policy.notifications.push('\n❓статус 1С неизвестен');
             if (policy.status.ESBD === 'default') policy.notifications.push('\n❓статус ЕСБД неизвестен');
             if (issuedOnesKeys.includes(policy.status.ones)) {
-                policy.notifications.push(BotBase.config.adminsID.includes(ctx.from.id) 
-                || BotBase.config.adminsID.includes(ctx.message.chat.id) 
+                policy.notifications.push(JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+                || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id) 
                 ? '\n❗не отменён в 1С' 
                 : '\n✅ выписан в 1С');
             }
 
             if (issuedESBDKeys.includes(policy.status.ESBD)) {
-                policy.notifications.push(BotBase.config.adminsID.includes(ctx.from.id) 
-                || BotBase.config.adminsID.includes(ctx.message.chat.id) 
+                policy.notifications.push(JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+                || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id) 
                 ? '\n❗не отменён в ЕСБД' 
                 : '\n✅ выписан в ЕСБД');
             }
@@ -61,8 +63,8 @@ class Handlers {
     static commands(bot, crontab) {
         let job;
         bot.command('run', async (ctx) => {
-            if (BotBase.config.adminsID.includes(ctx.from.id) 
-            || BotBase.config.adminsID.includes(ctx.message.chat.id)) {
+            if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
                 job = schedule.scheduleJob(crontab, async () => {
                     await Logger.log('[inf] ▶ Запущено обновление статусов');
@@ -89,8 +91,8 @@ class Handlers {
         });
 
         bot.command('stop', async (ctx) => {
-            if (BotBase.config.adminsID.includes(ctx.from.id) 
-            || BotBase.config.adminsID.includes(ctx.message.chat.id)) {
+            if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
                 if (job) job.cancel();
                 ctx.reply('Cron остановлен');
@@ -101,11 +103,11 @@ class Handlers {
         bot.on(message('text'), async (ctx) => {
             for (const key of Object.keys(BotBase.config.API.endpoints.ESBD.submethods)) {
                 if ((ctx.message.text.startsWith(key) 
-                && !(BotBase.config.adminsID.includes(ctx.from.id) 
-                || BotBase.config.adminsID.includes(ctx.message.chat.id))) 
+                && !(JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+                || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id))) 
                 || (ctx.message.text.startsWith(`+${key}`) 
-                && (BotBase.config.adminsID.includes(ctx.from.id) 
-                || BotBase.config.adminsID.includes(ctx.message.chat.id)))) {
+                && (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+                || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)))) {
                     await Notion.addPolicy(ctx);
                     ctx.reply('Полис добавлен');
                 }
