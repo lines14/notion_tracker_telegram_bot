@@ -8,7 +8,11 @@ dotenv.config({ override: true });
 BotBase.init();
 Notion.init();
 
-Handlers.commands(BotBase.bot, BotBase.config.crontab);
+Handlers.commands(
+    BotBase.bot, 
+    BotBase.config.policyCheckCrontab, 
+    BotBase.config.verificationToggleCrontab
+);
 
 BotBase.bot.launch({ 
     webhook: { 

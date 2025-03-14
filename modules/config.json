@@ -1,5 +1,7 @@
 {
-    "crontab": "0 5-13/2 * * 1-5",
+    "verificationToggleCrontab": "0 */2 * * *",
+    "policyCheckCrontab": "0 5-13/2 * * 1-5",
+    "servers": "[{\"url\":\"https://testesbd.mkb.kz:8077/IICwebservice.asmx\",\"active\":1},{\"url\":\"https://testesbd-beta.mkb.kz:8078/IICWebservice.asmx\",\"active\":0}]",
     "API": {
         "endpoints": {
         "spendingTrackerAPI": {
@@ -11,6 +13,10 @@
             },
             "ones": {
                 "callMethod": "api/ones/v2/ones/call-method"
+            },
+            "dictionary": {
+                "verifyBool": "api/dictionary/settings/verify_bool",
+                "servers": "api/dictionary/settings/5"
             },
             "ESBD": {
                 "callMethod": "api/esbd/call-method",

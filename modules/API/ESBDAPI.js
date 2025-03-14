@@ -7,17 +7,20 @@ dotenv.config({ override: true });
 class ESBDAPI extends BaseAPI {
     #API;
 
-    constructor(options = {}) {
-        super(
-            options.baseURL || process.env.GATEWAY_URL,
-            options.logString,
-            options.timeout, 
-            options.headers
-        );
+    #options;
+
+    constructor(options = {
+        baseURL: '' || process.env.GATEWAY_URL,
+    }) {
+        super(options);
+        this.#options = options;
     }
 
     async setToken() {
-        this.#API = new ESBDAPI({ headers: { Authorization: `Bearer ${await authAPI.auth()}` } });
+        const response = await authAPI.auth({ APIName: 'ESBD API' });
+        this.#options.headers = {};
+        this.#options.headers.Authorization = `Bearer ${response.data.data.access_token}`;
+        this.#API = new ESBDAPI(this.#options);
     }
 
     async getContract_By_Number(methodName, number) {

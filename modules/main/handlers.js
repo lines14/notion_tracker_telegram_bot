@@ -60,19 +60,19 @@ class Handlers {
         await Logger.log('[inf] ▶ Уведомление отправлено');
     }
 
-    static commands(bot, crontab) {
-        let job;
+    static commands(bot, policyCheckCrontab, verificationToggleCrontab) {
+        let policyCheckJob;
         bot.command('run', async (ctx) => {
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
             || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
-                job = schedule.scheduleJob(crontab, async () => {
+                policyCheckJob = schedule.scheduleJob(policyCheckCrontab, async () => {
                     await Logger.log('[inf] ▶ Запущено обновление статусов');
                     await this.checkAndNotify(ctx);
                 });
                 
-                ctx.reply('Cron запущен');
-                await Logger.log('[inf] ▶ Cron запущен');
+                ctx.reply('Cron отслеживания полисов запущен');
+                await Logger.log('[inf] ▶ Cron отслеживания полисов запущен');
             }
         });
 
@@ -90,13 +90,45 @@ class Handlers {
             ctx.reply(response.data.message);
         });
 
+        bot.command('staging verification off', async (ctx) => {
+            ctx.deleteMessage();
+            await spendingTrackerAPI.auth();
+            await spendingTrackerAPI.setToken();
+            const response = await spendingTrackerAPI.greetings();
+            ctx.reply(response.data.message);
+        });
+
+        bot.command('staging verification on', async (ctx) => {
+            ctx.deleteMessage();
+            await spendingTrackerAPI.auth();
+            await spendingTrackerAPI.setToken();
+            const response = await spendingTrackerAPI.greetings();
+            ctx.reply(response.data.message);
+        });
+
+        bot.command('dev verification off', async (ctx) => {
+            ctx.deleteMessage();
+            await spendingTrackerAPI.auth();
+            await spendingTrackerAPI.setToken();
+            const response = await spendingTrackerAPI.greetings();
+            ctx.reply(response.data.message);
+        });
+
+        bot.command('dev verification on', async (ctx) => {
+            ctx.deleteMessage();
+            await spendingTrackerAPI.auth();
+            await spendingTrackerAPI.setToken();
+            const response = await spendingTrackerAPI.greetings();
+            ctx.reply(response.data.message);
+        });
+
         bot.command('stop', async (ctx) => {
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
             || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
-                if (job) job.cancel();
-                ctx.reply('Cron остановлен');
-                await Logger.log('[inf] ▶ Cron остановлен');
+                if (policyCheckJob) policyCheckJob.cancel();
+                ctx.reply('Cron отслеживания полисов остановлен');
+                await Logger.log('[inf] ▶ Cron отслеживания полисов остановлен');
             }
         });
 

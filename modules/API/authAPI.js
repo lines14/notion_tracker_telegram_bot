@@ -5,27 +5,45 @@ import BotBase from '../main/botBase.js';
 dotenv.config({ override: true });
 
 class AuthAPI extends BaseAPI {
-    #login;
-    #password;
+    #options;
 
     constructor(options = {}) {
-        super(
-            options.baseURL || process.env.GATEWAY_URL,
-            options.logString ?? '[inf] ▶ set base API URL:',
-            options.timeout,
-            options.headers
-        );
-        this.#login = process.env.AUTH_LOGIN;
-        this.#password = process.env.AUTH_PASSWORD;
+        super(options);
+        this.#options = options;
     }
 
-    async auth(user) {
-        const params = user 
-        ? { login: user.login, password: user.password } 
-        : { login: this.#login, password: this.#password };
-        await Logger.log(`[inf]   login as ${params.login}:`);
+    async auth({ APIName, env }) {
+      let API;
+      let params;
+      if (env === 'prod') {
+        params = { 
+          login: process.env.AUTH_PROD_LOGIN, 
+          password: process.env.AUTH_PROD_PASSWORD 
+        }
 
-        return (await this.post(BotBase.config.API.endpoints.auth.login, params)).data.data.access_token;
+        this.#options.baseURL = process.env.GATEWAY_PROD_URL;
+        API = new AuthAPI(this.#options);
+      } else if (env === 'dev') {
+        params = { 
+          login: process.env.AUTH_DEV_LOGIN, 
+          password: process.env.AUTH_DEV_PASSWORD 
+        }
+
+        this.#options.baseURL = process.env.GATEWAY_DEV_URL;
+        API = new AuthAPI(this.#options);
+      } else {
+        params = { 
+          login: process.env.AUTH_STAGING_LOGIN, 
+          password: process.env.AUTH_STAGING_PASSWORD 
+        }
+
+        this.#options.baseURL = process.env.GATEWAY_STAGING_URL;
+        API = new AuthAPI(this.#options);
+      }
+
+      await Logger.log(`[inf]   login in ${APIName} as ${params.login}:`);
+  
+      return API.post(BotBase.config.API.endpoints.auth.login, params);
     }
 }
 
