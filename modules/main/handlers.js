@@ -23,12 +23,13 @@ class Handlers {
     }
 
     static async checkAndNotify(ctx) {
+        const chatID = ctx.message?.chat?.id || ctx.callbackQuery?.message?.chat?.id;
         let policies = await Notion.getNotCancelledPolicies(JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
-        || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id));
+        || JSON.parse(process.env.ADMINS_IDS).includes(chatID));
         policies = await StatusChecker.getStatusESBD(policies);
         policies = await StatusChecker.getStatusOnes(policies);
         await Notion.updateNotCancelledPolicies(policies, JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
-        || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id));
+        || JSON.parse(process.env.ADMINS_IDS).includes(chatID));
 
         const issuedOnesKeys = Object.keys(BotBase.config.API.statuses.ones)
         .filter((key) => BotBase.config.API.statuses.ones[key] === 'Выписан').map(Number);
@@ -36,7 +37,7 @@ class Handlers {
         .filter((key) => BotBase.config.API.statuses.ESBD[key] === 'Выписан').map(Number);
 
         let notification = JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
-        || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id) 
+        || JSON.parse(process.env.ADMINS_IDS).includes(chatID) 
         ? 'Тестовые полисы на PROD:' 
         : 'Полисы на PROD:';
         
@@ -46,14 +47,14 @@ class Handlers {
             if (policy.status.ESBD === 'default') policy.notifications.push('\n❓статус ЕСБД неизвестен');
             if (issuedOnesKeys.includes(policy.status.ones)) {
                 policy.notifications.push(JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
-                || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id) 
+                || JSON.parse(process.env.ADMINS_IDS).includes(chatID) 
                 ? '\n❗не отменён в 1С' 
                 : '\n✅ выписан в 1С');
             }
 
             if (issuedESBDKeys.includes(policy.status.ESBD)) {
                 policy.notifications.push(JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
-                || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id) 
+                || JSON.parse(process.env.ADMINS_IDS).includes(chatID) 
                 ? '\n❗не отменён в ЕСБД' 
                 : '\n✅ выписан в ЕСБД');
             }
@@ -160,7 +161,7 @@ class Handlers {
 
         bot.action(/update_policies_statuses_cron_(on|off)/, async (ctx) => {
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
-            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
+            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.callbackQuery.message.chat.id)) {
                 const actionParts = ctx.callbackQuery.data.split('_');
                 const status = actionParts.pop() === 'on';
                 if (status) {
@@ -184,7 +185,7 @@ class Handlers {
 
         bot.action(/(dev|staging)_verification_(on|off)/, async (ctx) => {
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
-            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
+            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.callbackQuery.message.chat.id)) {
                 ctx.deleteMessage();
                 const actionParts = ctx.callbackQuery.data.split('_');
                 const env = actionParts.shift();
@@ -195,7 +196,7 @@ class Handlers {
 
         bot.action(/(dev|staging)_verification_cron_(on|off)/, async (ctx) => {
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
-            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
+            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.callbackQuery.message.chat.id)) {
                 const actionParts = ctx.callbackQuery.data.split('_');
                 const env = actionParts.shift();
                 const status = actionParts.pop() === 'on';
