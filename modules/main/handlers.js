@@ -11,6 +11,17 @@ import spendingTrackerAPI from '../API/spendingTrackerAPI.js';
 dotenv.config({ override: true });
 
 class Handlers {
+    static async toggleVerification(ctx, env, value) {
+        const dictionaryAPI = new DictionaryAPI();
+        await dictionaryAPI.setToken({ env });
+        await dictionaryAPI.toggleServer();
+        await dictionaryAPI.toggleVerification({ value });
+        const statusText = value ? 'включена' : 'отключена';
+        const message = `Сверка на ${env} ${statusText}`;
+        await Logger.log(`[inf] ▶ ${message}`);
+        ctx.reply(message);
+    }
+
     static async checkAndNotify(ctx) {
         let policies = await Notion.getNotCancelledPolicies(JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
         || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id));
@@ -64,6 +75,7 @@ class Handlers {
 
     static commands(bot, policyCheckCrontab, verificationToggleCrontab) {
         let policyCheckJob;
+        let verificationToggleJob;
 
         bot.command('run', async (ctx) => {
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
@@ -73,16 +85,10 @@ class Handlers {
                     await Logger.log('[inf] ▶ Запущено обновление статусов');
                     await this.checkAndNotify(ctx);
                 });
-                
-                ctx.reply('Cron отслеживания полисов запущен');
-                await Logger.log('[inf] ▶ Cron отслеживания полисов запущен');
+                const message = 'Cron отслеживания полисов запущен';
+                await Logger.log(`[inf] ▶ ${message}`);
+                ctx.reply(message);
             }
-        });
-
-        bot.command('update', async (ctx) => {
-            ctx.deleteMessage();
-            await Logger.log('[inf] ▶ Запущено обновление статусов');
-            await this.checkAndNotify(ctx);
         });
 
         bot.command('stop', async (ctx) => {
@@ -90,8 +96,9 @@ class Handlers {
             || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
                 if (policyCheckJob) policyCheckJob.cancel();
-                ctx.reply('Cron отслеживания полисов остановлен');
-                await Logger.log('[inf] ▶ Cron отслеживания полисов остановлен');
+                const message = 'Cron отслеживания полисов остановлен';
+                await Logger.log(`[inf] ▶ ${message}`);
+                ctx.reply(message);
             }
         });
 
@@ -106,56 +113,65 @@ class Handlers {
             }
         });
 
+        bot.command('update', async (ctx) => {
+            ctx.deleteMessage();
+            await Logger.log('[inf] ▶ Запущено обновление статусов');
+            await this.checkAndNotify(ctx);
+        });
+
         bot.command('verification', async (ctx) => {
-            ctx.deleteMessage();
-            ctx.reply('Меню сверки:', 
-                Markup.inlineKeyboard([
-                    [Markup.button.callback('Включить сверку на dev', 'dev_verification_on')],
-                    [Markup.button.callback('Отключить сверку на dev', 'dev_verification_off')],
-                    [Markup.button.callback('Включить сверку на staging', 'staging_verification_on')],
-                    [Markup.button.callback('Отключить сверку на staging', 'staging_verification_off')]
-                ])
-            );
+            if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
+                ctx.deleteMessage();
+                ctx.reply('Меню сверки:', 
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Включить сверку на dev', 'dev_verification_on')],
+                        [Markup.button.callback('Отключить сверку на dev', 'dev_verification_off')],
+                        [Markup.button.callback('Включить сверку на staging', 'staging_verification_on')],
+                        [Markup.button.callback('Отключить сверку на staging', 'staging_verification_off')],
+                        [Markup.button.callback('Включить cron на dev', 'dev_verification_cron_on')],
+                        [Markup.button.callback('Отключить cron на dev', 'dev_verification_cron_off')],
+                        [Markup.button.callback('Включить cron на staging', 'staging_verification_cron_on')],
+                        [Markup.button.callback('Отключить cron на staging', 'staging_verification_cron_off')]
+                    ])
+                );
+            }
         });
 
-        bot.action('staging_verification_off', async (ctx) => {
-            ctx.deleteMessage();
-            const env = 'staging';
-            const dictionaryAPI = new DictionaryAPI();
-            await dictionaryAPI.setToken({ env });
-            await dictionaryAPI.toggleServer();
-            await dictionaryAPI.toggleVerification({ value: false });
-            ctx.reply(`Сверка на ${env} отключена`);
+        bot.action(/(dev|staging)_verification_(on|off)/, async (ctx) => {
+            if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
+                ctx.deleteMessage();
+                const actionParts = ctx.callbackQuery.data.split('_');
+                const env = actionParts.shift();
+                const value = actionParts.pop() === 'on';
+                await this.toggleVerification(ctx, env, value);
+            }
         });
 
-        bot.action('staging_verification_on', async (ctx) => {
-            ctx.deleteMessage();
-            const env = 'staging';
-            const dictionaryAPI = new DictionaryAPI();
-            await dictionaryAPI.setToken({ env });
-            await dictionaryAPI.toggleServer();
-            await dictionaryAPI.toggleVerification({ value: true });
-            ctx.reply(`Сверка на ${env} включена`);
-        });
-
-        bot.action('dev_verification_off', async (ctx) => {
-            ctx.deleteMessage();
-            const env = 'dev';
-            const dictionaryAPI = new DictionaryAPI();
-            await dictionaryAPI.setToken({ env });
-            await dictionaryAPI.toggleServer();
-            await dictionaryAPI.toggleVerification({ value: false });
-            ctx.reply(`Сверка на ${env} отключена`);
-        });
-
-        bot.action('dev_verification_on', async (ctx) => {
-            ctx.deleteMessage();
-            const env = 'dev';
-            const dictionaryAPI = new DictionaryAPI();
-            await dictionaryAPI.setToken({ env });
-            await dictionaryAPI.toggleServer();
-            await dictionaryAPI.toggleVerification({ value: true });
-            ctx.reply(`Сверка на ${env} включена`);
+        bot.action(/(dev|staging)_verification_cron_(on|off)/, async (ctx) => {
+            if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
+                const actionParts = ctx.callbackQuery.data.split('_');
+                const env = actionParts.shift();
+                const status = actionParts.pop() === 'on';
+                if (status) {
+                    ctx.deleteMessage();
+                    verificationToggleJob = schedule.scheduleJob(verificationToggleCrontab, async () => {
+                        const value = false;
+                        await this.toggleVerification(ctx, env, value);
+                    });
+                    const message = `Cron отключения сверки на ${env} запущен`;
+                    await Logger.log(`[inf] ▶ ${message}`);
+                    ctx.reply(message);
+                } else {
+                    ctx.deleteMessage();
+                    if (verificationToggleJob) verificationToggleJob.cancel();
+                    const message = `Cron отключения сверки на ${env} остановлен`;
+                    await Logger.log(`[inf] ▶ ${message}`);
+                    ctx.reply(message);
+                }
+            }
         });
 
         bot.on(message('text'), async (ctx) => {
