@@ -41,8 +41,7 @@ class AuthAPI extends BaseAPI {
         API = new AuthAPI(this.#options);
       }
 
-      await Logger.log(`[inf]   login in ${APIName} as ${params.login}:`);
-  
+      await Logger.log(`[inf]   login in ${APIName} as ${params.login} on ${env} environment:`);
       return API.post(BotBase.config.API.endpoints.auth.login, params);
     }
 }

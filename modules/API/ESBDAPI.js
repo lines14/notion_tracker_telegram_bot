@@ -9,17 +9,23 @@ class ESBDAPI extends BaseAPI {
 
     #options;
 
-    constructor(options = {
-        baseURL: '' || process.env.GATEWAY_URL,
-    }) {
+    constructor(options = {}) {
         super(options);
         this.#options = options;
     }
 
-    async setToken() {
-        const response = await authAPI.auth({ APIName: 'ESBD API' });
+    async setToken({ env }) {
+        const response = await authAPI.auth({ APIName: 'ESBD API', env });
         this.#options.headers = {};
         this.#options.headers.Authorization = `Bearer ${response.data.data.access_token}`;
+        if (env === 'prod') {
+                this.#options.baseURL = process.env.GATEWAY_PROD_URL;
+            } else if (env === 'dev') {
+                this.#options.baseURL = process.env.GATEWAY_DEV_URL;
+            } else {
+                this.#options.baseURL = process.env.GATEWAY_STAGING_URL;
+        }
+
         this.#API = new ESBDAPI(this.#options);
     }
 

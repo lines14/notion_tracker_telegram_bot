@@ -1,11 +1,13 @@
 import dotenv from 'dotenv';
 import Notion from './notion.js';
 import Logger from './logger.js';
+import { Markup } from 'telegraf';
 import BotBase from './botBase.js';
 import schedule from 'node-schedule';
-import spendingTrackerAPI from '../API/spendingTrackerAPI.js';
 import { message } from 'telegraf/filters';
 import StatusChecker from './statusChecker.js';
+import DictionaryAPI from '../API/dictionaryAPI.js';
+import spendingTrackerAPI from '../API/spendingTrackerAPI.js';
 dotenv.config({ override: true });
 
 class Handlers {
@@ -62,6 +64,7 @@ class Handlers {
 
     static commands(bot, policyCheckCrontab, verificationToggleCrontab) {
         let policyCheckJob;
+
         bot.command('run', async (ctx) => {
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
             || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
@@ -82,46 +85,6 @@ class Handlers {
             await this.checkAndNotify(ctx);
         });
 
-        bot.command('greetings', async (ctx) => {
-            ctx.deleteMessage();
-            await spendingTrackerAPI.auth();
-            await spendingTrackerAPI.setToken();
-            const response = await spendingTrackerAPI.greetings();
-            ctx.reply(response.data.message);
-        });
-
-        bot.command('staging verification off', async (ctx) => {
-            ctx.deleteMessage();
-            await spendingTrackerAPI.auth();
-            await spendingTrackerAPI.setToken();
-            const response = await spendingTrackerAPI.greetings();
-            ctx.reply(response.data.message);
-        });
-
-        bot.command('staging verification on', async (ctx) => {
-            ctx.deleteMessage();
-            await spendingTrackerAPI.auth();
-            await spendingTrackerAPI.setToken();
-            const response = await spendingTrackerAPI.greetings();
-            ctx.reply(response.data.message);
-        });
-
-        bot.command('dev verification off', async (ctx) => {
-            ctx.deleteMessage();
-            await spendingTrackerAPI.auth();
-            await spendingTrackerAPI.setToken();
-            const response = await spendingTrackerAPI.greetings();
-            ctx.reply(response.data.message);
-        });
-
-        bot.command('dev verification on', async (ctx) => {
-            ctx.deleteMessage();
-            await spendingTrackerAPI.auth();
-            await spendingTrackerAPI.setToken();
-            const response = await spendingTrackerAPI.greetings();
-            ctx.reply(response.data.message);
-        });
-
         bot.command('stop', async (ctx) => {
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
             || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
@@ -130,6 +93,69 @@ class Handlers {
                 ctx.reply('Cron отслеживания полисов остановлен');
                 await Logger.log('[inf] ▶ Cron отслеживания полисов остановлен');
             }
+        });
+
+        bot.command('greetings', async (ctx) => {
+            ctx.deleteMessage();
+            await spendingTrackerAPI.setToken();
+            const response = await spendingTrackerAPI.greetings();
+            if (response.data.message) {
+                ctx.reply(response.data.message);
+            } else {
+                ctx.reply(response.data);
+            }
+        });
+
+        bot.command('verification', async (ctx) => {
+            ctx.deleteMessage();
+            ctx.reply('Меню сверки:', 
+                Markup.inlineKeyboard([
+                    [Markup.button.callback('Включить сверку на dev', 'dev_verification_on')],
+                    [Markup.button.callback('Отключить сверку на dev', 'dev_verification_off')],
+                    [Markup.button.callback('Включить сверку на staging', 'staging_verification_on')],
+                    [Markup.button.callback('Отключить сверку на staging', 'staging_verification_off')]
+                ])
+            );
+        });
+
+        bot.action('staging_verification_off', async (ctx) => {
+            ctx.deleteMessage();
+            const env = 'staging';
+            const dictionaryAPI = new DictionaryAPI();
+            await dictionaryAPI.setToken({ env });
+            await dictionaryAPI.toggleServer();
+            await dictionaryAPI.toggleVerification({ value: false });
+            ctx.reply(`Сверка на ${env} отключена`);
+        });
+
+        bot.action('staging_verification_on', async (ctx) => {
+            ctx.deleteMessage();
+            const env = 'staging';
+            const dictionaryAPI = new DictionaryAPI();
+            await dictionaryAPI.setToken({ env });
+            await dictionaryAPI.toggleServer();
+            await dictionaryAPI.toggleVerification({ value: true });
+            ctx.reply(`Сверка на ${env} включена`);
+        });
+
+        bot.action('dev_verification_off', async (ctx) => {
+            ctx.deleteMessage();
+            const env = 'dev';
+            const dictionaryAPI = new DictionaryAPI();
+            await dictionaryAPI.setToken({ env });
+            await dictionaryAPI.toggleServer();
+            await dictionaryAPI.toggleVerification({ value: false });
+            ctx.reply(`Сверка на ${env} отключена`);
+        });
+
+        bot.action('dev_verification_on', async (ctx) => {
+            ctx.deleteMessage();
+            const env = 'dev';
+            const dictionaryAPI = new DictionaryAPI();
+            await dictionaryAPI.setToken({ env });
+            await dictionaryAPI.toggleServer();
+            await dictionaryAPI.toggleVerification({ value: true });
+            ctx.reply(`Сверка на ${env} включена`);
         });
 
         bot.on(message('text'), async (ctx) => {

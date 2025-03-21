@@ -14,10 +14,18 @@ class DictionaryAPI extends BaseAPI {
         this.#options = options;
     }
 
-    async setToken(env) {
+    async setToken({ env }) {
         const response = await authAPI.auth({ APIName: 'Dictionary API', env });
         this.#options.headers = {};
         this.#options.headers.Authorization = `Bearer ${response.data.data.access_token}`;
+        if (env === 'prod') {
+                this.#options.baseURL = process.env.GATEWAY_PROD_URL;
+            } else if (env === 'dev') {
+                this.#options.baseURL = process.env.GATEWAY_DEV_URL;
+            } else {
+                this.#options.baseURL = process.env.GATEWAY_STAGING_URL;
+        }
+
         this.#API = new DictionaryAPI(this.#options);
     }
 
@@ -26,16 +34,16 @@ class DictionaryAPI extends BaseAPI {
           setting: BotBase.config.servers,
         };
     
-        return this.#API.post(BotBase.config.dictionary.servers, params);
+        return this.#API.post(BotBase.config.API.endpoints.dictionary.servers, params);
     }
     
-    async toggleVerification(value) {
+    async toggleVerification({ value }) {
         const params = {
-            value,
+            value: Number(value),
         };
 
-        return this.#API.patch(BotBase.config.dictionary.verifyBool, params);
+        return this.#API.patch(BotBase.config.API.endpoints.dictionary.verifyBool, params);
     }
 }
 
-export default new DictionaryAPI();
+export default DictionaryAPI;

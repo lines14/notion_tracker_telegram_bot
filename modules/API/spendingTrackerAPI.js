@@ -22,12 +22,9 @@ class SpendingTrackerAPI extends BaseAPI {
         this.#password = '' || process.env.USER_PASSWORD;
     }
 
-    async auth({ user, APIName }) {
-        const params = user
-          ? { login: user.login, password: user.password }
-          : { login: this.#login, password: this.#password };
+    async auth({ APIName }) {
+        const params = { login: this.#login, password: this.#password };
         await Logger.log(`[inf]   login in ${APIName} as ${params.login}:`);
-    
         return this.post(BotBase.config.API.endpoints.spendingTrackerAPI.auth, params);
     }
 
