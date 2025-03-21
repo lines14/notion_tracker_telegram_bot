@@ -77,15 +77,21 @@ class Handlers {
         let policyCheckJob;
         let verificationToggleJob;
 
+        bot.command('update', async (ctx) => {
+            ctx.deleteMessage();
+            await Logger.log('[inf] ▶ Запущено обновление статусов полисов');
+            await this.checkAndNotify(ctx);
+        });
+
         bot.command('run', async (ctx) => {
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
             || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
                 policyCheckJob = schedule.scheduleJob(policyCheckCrontab, async () => {
-                    await Logger.log('[inf] ▶ Запущено обновление статусов');
+                    await Logger.log('[inf] ▶ Запущено обновление статусов полисов');
                     await this.checkAndNotify(ctx);
                 });
-                const message = 'Cron отслеживания полисов запущен';
+                const message = 'Cron отслеживания статусов полисов запущен';
                 await Logger.log(`[inf] ▶ ${message}`);
                 ctx.reply(message);
             }
@@ -96,7 +102,7 @@ class Handlers {
             || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
                 if (policyCheckJob) policyCheckJob.cancel();
-                const message = 'Cron отслеживания полисов остановлен';
+                const message = 'Cron отслеживания статусов полисов остановлен';
                 await Logger.log(`[inf] ▶ ${message}`);
                 ctx.reply(message);
             }
@@ -113,10 +119,18 @@ class Handlers {
             }
         });
 
-        bot.command('update', async (ctx) => {
-            ctx.deleteMessage();
-            await Logger.log('[inf] ▶ Запущено обновление статусов');
-            await this.checkAndNotify(ctx);
+        bot.command('policies', async (ctx) => {
+            if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
+                ctx.deleteMessage();
+                ctx.reply('Меню отслеживания статусов полисов:', 
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Обновить статусы полисов', 'update_policies_statuses')],
+                        [Markup.button.callback('Включить cron обновления статусов полисов', 'update_policies_statuses_cron_on')],
+                        [Markup.button.callback('Отключить cron обновления статусов полисов', 'update_policies_statuses_cron_off')]
+                    ])
+                );
+            }
         });
 
         bot.command('verification', async (ctx) => {
@@ -129,12 +143,42 @@ class Handlers {
                         [Markup.button.callback('Отключить сверку на dev', 'dev_verification_off')],
                         [Markup.button.callback('Включить сверку на staging', 'staging_verification_on')],
                         [Markup.button.callback('Отключить сверку на staging', 'staging_verification_off')],
-                        [Markup.button.callback('Включить cron на dev', 'dev_verification_cron_on')],
-                        [Markup.button.callback('Отключить cron на dev', 'dev_verification_cron_off')],
-                        [Markup.button.callback('Включить cron на staging', 'staging_verification_cron_on')],
-                        [Markup.button.callback('Отключить cron на staging', 'staging_verification_cron_off')]
+                        [Markup.button.callback('Включить cron отключения сверки на dev', 'dev_verification_cron_on')],
+                        [Markup.button.callback('Отключить cron отключения сверки на dev', 'dev_verification_cron_off')],
+                        [Markup.button.callback('Включить cron отключения сверки на staging', 'staging_verification_cron_on')],
+                        [Markup.button.callback('Отключить cron отключения сверки на staging', 'staging_verification_cron_off')]
                     ])
                 );
+            }
+        });
+
+        bot.action('update_policies_statuses', async (ctx) => {
+            ctx.deleteMessage();
+            await Logger.log('[inf] ▶ Запущено обновление статусов полисов');
+            await this.checkAndNotify(ctx);
+        });
+
+        bot.action(/update_policies_statuses_cron_(on|off)/, async (ctx) => {
+            if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
+            || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
+                const actionParts = ctx.callbackQuery.data.split('_');
+                const status = actionParts.pop() === 'on';
+                if (status) {
+                    ctx.deleteMessage();
+                    policyCheckJob = schedule.scheduleJob(policyCheckCrontab, async () => {
+                        await Logger.log('[inf] ▶ Запущено обновление статусов полисов');
+                        await this.checkAndNotify(ctx);
+                    });
+                    const message = 'Cron отслеживания статусов полисов запущен';
+                    await Logger.log(`[inf] ▶ ${message}`);
+                    ctx.reply(message);
+                } else {
+                    ctx.deleteMessage();
+                    if (policyCheckJob) policyCheckJob.cancel();
+                    const message = 'Cron отслеживания статусов полисов остановлен';
+                    await Logger.log(`[inf] ▶ ${message}`);
+                    ctx.reply(message);
+                }
             }
         });
 
