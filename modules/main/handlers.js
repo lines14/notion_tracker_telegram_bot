@@ -121,14 +121,20 @@ class Handlers {
         });
 
         bot.command('policies', async (ctx) => {
+            ctx.deleteMessage();
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
             || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
-                ctx.deleteMessage();
                 ctx.reply('Меню отслеживания статусов полисов:', 
                     Markup.inlineKeyboard([
                         [Markup.button.callback('Обновить статусы полисов', 'update_policies_statuses')],
                         [Markup.button.callback('Включить cron обновления статусов полисов', 'update_policies_statuses_cron_on')],
                         [Markup.button.callback('Отключить cron обновления статусов полисов', 'update_policies_statuses_cron_off')]
+                    ])
+                );
+            } else {
+                ctx.reply('Меню отслеживания статусов полисов:', 
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Обновить статусы полисов', 'update_policies_statuses')]
                     ])
                 );
             }
