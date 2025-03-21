@@ -11,7 +11,7 @@ import spendingTrackerAPI from '../API/spendingTrackerAPI.js';
 dotenv.config({ override: true });
 
 class Handlers {
-    static async toggleVerification(ctx, env, value) {
+    static async toggleVerification(ctx, env, value, options = { fromCrontab: false }) {
         const dictionaryAPI = new DictionaryAPI();
         await dictionaryAPI.setToken({ env });
         await dictionaryAPI.toggleServer();
@@ -19,7 +19,9 @@ class Handlers {
         const statusText = value ? 'включена' : 'отключена';
         const message = `Сверка на ${env} ${statusText}`;
         await Logger.log(`[inf] ▶ ${message}`);
-        ctx.reply(message);
+        if (!options.fromCrontab) {
+            ctx.reply(message);
+        }
     }
 
     static async checkAndNotify(ctx) {
@@ -210,7 +212,7 @@ class Handlers {
                     ctx.deleteMessage();
                     verificationToggleJob = schedule.scheduleJob(verificationToggleCrontab, async () => {
                         const value = false;
-                        await this.toggleVerification(ctx, env, value);
+                        await this.toggleVerification(ctx, env, value, { fromCrontab: true });
                     });
                     const message = `Cron отключения сверки на ${env} запущен`;
                     await Logger.log(`[inf] ▶ ${message}`);
