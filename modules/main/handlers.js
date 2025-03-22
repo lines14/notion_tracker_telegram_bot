@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
 import Notion from './notion.js';
 import Logger from './logger.js';
-import { Markup } from 'telegraf';
 import BotBase from './botBase.js';
 import schedule from 'node-schedule';
+import Keyboards from './keyboards.js';
 import { message } from 'telegraf/filters';
 import StatusChecker from './statusChecker.js';
 import DictionaryAPI from '../API/dictionaryAPI.js';
@@ -126,19 +126,9 @@ class Handlers {
             ctx.deleteMessage();
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
             || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
-                ctx.reply('Меню отслеживания статусов полисов:', 
-                    Markup.inlineKeyboard([
-                        [Markup.button.callback('Обновить статусы полисов', 'update_policies_statuses')],
-                        [Markup.button.callback('Включить cron обновления статусов полисов', 'update_policies_statuses_cron_on')],
-                        [Markup.button.callback('Отключить cron обновления статусов полисов', 'update_policies_statuses_cron_off')]
-                    ])
-                );
+                ctx.reply('Меню отслеживания статусов полисов:', Keyboards.adminsPoliciesKeyboard);
             } else {
-                ctx.reply('Меню отслеживания статусов полисов:', 
-                    Markup.inlineKeyboard([
-                        [Markup.button.callback('Обновить статусы полисов', 'update_policies_statuses')]
-                    ])
-                );
+                ctx.reply('Меню отслеживания статусов полисов:', Keyboards.policiesKeyboard);
             }
         });
 
@@ -146,18 +136,7 @@ class Handlers {
             if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id) 
             || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
                 ctx.deleteMessage();
-                ctx.reply('Меню сверки:', 
-                    Markup.inlineKeyboard([
-                        [Markup.button.callback('Включить сверку на dev', 'dev_verification_on')],
-                        [Markup.button.callback('Отключить сверку на dev', 'dev_verification_off')],
-                        [Markup.button.callback('Включить сверку на staging', 'staging_verification_on')],
-                        [Markup.button.callback('Отключить сверку на staging', 'staging_verification_off')],
-                        [Markup.button.callback('Включить cron отключения сверки на dev', 'dev_verification_cron_on')],
-                        [Markup.button.callback('Отключить cron отключения сверки на dev', 'dev_verification_cron_off')],
-                        [Markup.button.callback('Включить cron отключения сверки на staging', 'staging_verification_cron_on')],
-                        [Markup.button.callback('Отключить cron отключения сверки на staging', 'staging_verification_cron_off')]
-                    ])
-                );
+                ctx.reply('Меню сверки:', Keyboards.verificationKeyboard);
             }
         });
 
