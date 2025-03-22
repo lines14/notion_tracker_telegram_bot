@@ -1,5 +1,11 @@
 {
     "type": "module",
+    "scripts": {
+        "eslint": "eslint --ext .js .",
+        "eslint:fix": "eslint --fix --ext .js .",
+        "lint": "npm run config && npm run eslint",
+        "lint:fix": "npm run config && npm run eslint:fix"
+    },
     "devDependencies": {
         "@notionhq/client": "^2.2.13",
         "axios": "^1.5.1",
@@ -7,6 +13,8 @@
         "filesize": "^10.1.0",
         "moment": "^2.29.4",
         "node-schedule": "^2.1.1",
-        "telegraf": "^4.14.0"
+        "telegraf": "^4.14.0",
+        "eslint": "^8.56.0",
+        "eslint-config-airbnb-base": "^15.0.0"
     }
 }
