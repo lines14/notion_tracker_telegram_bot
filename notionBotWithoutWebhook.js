@@ -7,9 +7,9 @@ BotBase.init();
 Notion.init();
 
 Handlers.commands(
-    BotBase.bot, 
-    BotBase.config.policyCheckCrontab, 
-    BotBase.config.verificationToggleCrontab
+  BotBase.bot,
+  BotBase.config.policyCheckCrontab,
+  BotBase.config.verificationToggleCrontab,
 );
 
 BotBase.bot.launch();
