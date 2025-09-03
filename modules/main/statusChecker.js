@@ -49,7 +49,7 @@ class StatusChecker {
       const response = await onesAPI.getPolicy(policy.number);
       if (response.data.contracts) {
         policy.status.ones = response.data.contracts[0].policy_status;
-      } else if (response.data.error?.errors?.contracts) {
+      } else if (response.data.errors?.contracts) {
         policy.status.ones = response.data.error.errors.contracts[0].match(/удаление/).reverse().pop();
       } else {
         policy.status.ones = 'default';
