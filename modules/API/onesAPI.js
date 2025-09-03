@@ -30,16 +30,13 @@ class OnesAPI extends BaseAPI {
     this.#API = new OnesAPI(this.#options);
   }
 
-  /* eslint camelcase: ["error", {allow: ["num_policy"]}] */
-  async getPolicy(num_policy) {
+  async getPolicy(number) {
     const params = {
       methodName: 'GetPolicy',
-      params: {
-        num_policy,
-      },
+      'params[num_policy]': number,
     };
 
-    return this.#API.post(BotBase.config.API.endpoints.ones.callMethod, params);
+    return this.#API.get(BotBase.config.API.endpoints.ones.callMethod, params);
   }
 }
 
