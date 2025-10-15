@@ -6,12 +6,19 @@ import { message } from 'telegraf/filters';
 import Notion from './notion.js';
 import Logger from './logger.js';
 import BotBase from './botBase.js';
+import StrUtils from './strUtils.js';
 import Keyboards from './keyboards.js';
+import KaspiAPI from '../API/kaspiAPI.js';
+import StatesGroup from './statesGroup.js';
 import StatusChecker from './statusChecker.js';
 import DictionaryAPI from '../API/dictionaryAPI.js';
 import spendingTrackerAPI from '../API/spendingTrackerAPI.js';
 
 dotenv.config({ override: true });
+const paymentStatesGroup = StatesGroup.from(
+  'payment1',
+  'payment2',
+);
 
 class Handlers {
   static async toggleVerification(ctx, env, value, options = { fromCrontab: false }) {
@@ -25,6 +32,18 @@ class Handlers {
     if (!options.fromCrontab) {
       ctx.reply(msg);
     }
+  }
+
+  static async payForPolicy(ctx, stateData) {
+    const substr = 'не найден';
+    const { env } = stateData;
+    await KaspiAPI.setToken({ env });
+    const response = await KaspiAPI.pay(stateData);
+    const msg = !response.data.includes(substr)
+      ? `Полис ${stateData.account} оплачен на ${env}`
+      : `Полис ${stateData.account} ${substr} на ${env}`;
+    await Logger.log(`[inf] ▶ ${msg}`);
+    ctx.reply(msg);
   }
 
   static async checkAndNotify(ctx) {
@@ -139,6 +158,14 @@ class Handlers {
       }
     });
 
+    bot.command('payments', async (ctx) => {
+      if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id)
+      || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
+        ctx.deleteMessage();
+        ctx.reply('Меню тестовых платежей:', Keyboards.paymentsKeyboard);
+      }
+    });
+
     bot.command('verification', async (ctx) => {
       if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id)
       || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)) {
@@ -213,17 +240,48 @@ class Handlers {
       }
     });
 
+    bot.action(/(dev|staging)_pay_for_policy/, async (ctx) => {
+      if (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id)
+      || JSON.parse(process.env.ADMINS_IDS).includes(ctx.callbackQuery.message.chat.id)) {
+        ctx.deleteMessage();
+        const actionParts = ctx.callbackQuery.data.split('_');
+        const env = actionParts.shift();
+        paymentStatesGroup.clear(ctx.from.id);
+        paymentStatesGroup.start(ctx.from.id);
+        paymentStatesGroup.setData(ctx.from.id, 'env', env);
+        ctx.reply('Введите номер полиса, который требуется оплатить');
+      }
+    });
+
     bot.on(message('text'), async (ctx) => {
-      for (const key of Object.keys(BotBase.config.API.endpoints.ESBD.submethods)) {
-        if ((ctx.message.text.startsWith(key)
-        && !(JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id)
-        || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)))
-        || (ctx.message.text.startsWith(`+${key}`)
-        && (JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id)
-        || JSON.parse(process.env.ADMINS_IDS).includes(ctx.message.chat.id)))) {
-          await Notion.addPolicy(ctx); // eslint-disable-line no-await-in-loop
-          ctx.reply('Полис добавлен');
+      const admins = JSON.parse(process.env.ADMINS_IDS);
+      const state = paymentStatesGroup.getState(ctx.from.id);
+      const isAdmin = admins.includes(ctx.from.id) || admins.includes(ctx.message.chat.id);
+      const keys = Object.keys(BotBase.config.API.endpoints.ESBD.submethods);
+      const matchedKey = keys.find((key) => (!isAdmin && ctx.message.text.startsWith(key))
+      || (isAdmin && ctx.message.text.startsWith(`+${key}`))
+      || (isAdmin && ctx.message.text.startsWith(key)));
+
+      if (matchedKey) {
+        if ((ctx.message.text.startsWith(matchedKey) && !isAdmin)
+          || (ctx.message.text.startsWith(`+${matchedKey}`) && isAdmin)) {
+          paymentStatesGroup.clear(ctx.from.id);
+          const policy = ctx.message.text.startsWith('+')
+            ? ctx.message.text.slice(1)
+            : ctx.message.text;
+          await Notion.addPolicy(ctx, policy); // eslint-disable-line no-await-in-loop
+          ctx.reply(`Полис ${policy} добавлен в базу отслеживания`);
+        } else if (ctx.message.text.startsWith(matchedKey) && isAdmin
+          && state === paymentStatesGroup.payment1) {
+          paymentStatesGroup.setData(ctx.from.id, 'account', ctx.message.text);
+          paymentStatesGroup.nextState(ctx.from.id);
+          ctx.reply('Введите сумму оплаты');
         }
+      } else if (StrUtils.isValidPaymentAmount(ctx.message.text) && isAdmin
+        && state === paymentStatesGroup.payment2) {
+        paymentStatesGroup.setData(ctx.from.id, 'sum', ctx.message.text);
+        await this.payForPolicy(ctx, paymentStatesGroup.getData(ctx.from.id));
+        paymentStatesGroup.clear(ctx.from.id);
       }
     });
   }

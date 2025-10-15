@@ -72,10 +72,7 @@ class Notion {
     await Logger.log('[inf] ▶ Статусы полисов обновлены');
   }
 
-  static async addPolicy(ctx) {
-    const policy = ctx.message.text.startsWith('+')
-      ? ctx.message.text.slice(1)
-      : ctx.message.text;
+  static async addPolicy(ctx, policy) {
     await this.#notion.pages.create({
       parent: { database_id: process.env.NOTION_DB_ID },
       properties: {

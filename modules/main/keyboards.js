@@ -23,6 +23,10 @@ class Keyboards {
 
   static #b11 = Markup.button.callback('Отключить cron отключения сверки на staging', 'staging_verification_cron_off');
 
+  static #b12 = Markup.button.callback('Оплатить полис на dev', 'dev_pay_for_policy');
+
+  static #b13 = Markup.button.callback('Оплатить полис на staging', 'staging_pay_for_policy');
+
   static get adminsPoliciesKeyboard() {
     return Markup.inlineKeyboard([[this.#b1], [this.#b2], [this.#b3]]);
   }
@@ -34,6 +38,10 @@ class Keyboards {
   static get verificationKeyboard() {
     return Markup.inlineKeyboard([[this.#b4], [this.#b5], [this.#b6], [this.#b7],
       [this.#b8], [this.#b9], [this.#b10], [this.#b11]]);
+  }
+
+  static get paymentsKeyboard() {
+    return Markup.inlineKeyboard([[this.#b12], [this.#b13]]);
   }
 }
 

@@ -14,6 +14,9 @@
             "ones": {
                 "callMethod": "api/ones/v2/ones/call-method"
             },
+            "kaspi": {
+                "pay": "api/kaspi/kaspi/pay"
+            },
             "dictionary": {
                 "verifyBool": "api/dictionary/settings/verify_bool",
                 "servers": "api/dictionary/settings/5"
