@@ -43,10 +43,12 @@ class Handlers {
     const issuedESBDKeys = Object.keys(BotBase.config.API.statuses.ESBD)
       .filter((key) => BotBase.config.API.statuses.ESBD[key] === 'Выписан').map(Number);
 
+    const SDTitle = 'Полисы на PROD:';
+    const QATitle = 'Тестовые полисы на PROD:';
     let notification = JSON.parse(process.env.ADMINS_IDS).includes(ctx.from.id)
     || JSON.parse(process.env.ADMINS_IDS).includes(chatID)
-      ? 'Тестовые полисы на PROD:'
-      : 'Полисы на PROD:';
+      ? QATitle
+      : SDTitle;
 
     policies.forEach((policy) => {
       policy.notifications = [];
@@ -74,8 +76,8 @@ class Handlers {
       }
     });
 
-    if (notification.length === 24) notification = 'Выписанных тестовых полисов на PROD нет';
-    if (notification.length === 15) notification = '❌ Выписанных полисов на PROD нет\n(список проверяемых полисов был очищен, добавьте другие или прежние повторно)';
+    if (notification === QATitle) notification = 'Выписанных тестовых полисов на PROD нет';
+    if (notification === SDTitle) notification = '❌ Выписанных полисов на PROD нет\n(список проверяемых полисов был очищен, добавьте другие или прежние повторно)';
 
     ctx.reply(notification);
     await Logger.log('[inf] ▶ Уведомление отправлено');
