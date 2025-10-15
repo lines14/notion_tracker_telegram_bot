@@ -12,8 +12,27 @@ class Notion {
     this.#notion = new Client({ auth: process.env.NOTION_TOKEN });
   }
 
+  static async queryAll() {
+    let cursor;
+    let hasMore;
+    const allResults = [];
+
+    do { // eslint-disable-next-line no-await-in-loop
+      const response = await this.#notion.databases.query({
+        database_id: process.env.NOTION_DB_ID,
+        start_cursor: cursor,
+      });
+
+      allResults.push(...response.results);
+      hasMore = response.has_more;
+      cursor = response.next_cursor;
+    } while (hasMore);
+
+    return allResults;
+  }
+
   static async getNotCancelledPolicies(admin) {
-    let { results } = await this.#notion.databases.query({ database_id: process.env.NOTION_DB_ID });
+    let results = await this.queryAll();
     results = admin
       ? results.filter((policy) => policy.properties.tracking.status.name === 'Да')
       : results.filter((policy) => policy.properties.tracking.status.name === 'Нет');
