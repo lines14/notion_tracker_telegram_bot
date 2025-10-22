@@ -43,6 +43,16 @@ class KaspiAPI extends BaseAPI {
 
     return this.#API.get(BotBase.config.API.endpoints.kaspi.pay, params);
   }
+
+  async check(paymentInfo) {
+    const params = {
+      command: 'check',
+      txn_id: Randomizer.getRandomString(false, false, true, false, false, 18, 18),
+      account: paymentInfo.account,
+    };
+
+    return this.#API.get(BotBase.config.API.endpoints.kaspi.check, params);
+  }
 }
 
 export default new KaspiAPI();

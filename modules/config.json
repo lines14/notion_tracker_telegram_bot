@@ -4,10 +4,6 @@
     "servers": "[{\"url\":\"https://testesbd.mkb.kz:8077/IICwebservice.asmx\",\"active\":1},{\"url\":\"https://testesbd-beta.mkb.kz:8078/IICWebservice.asmx\",\"active\":0}]",
     "API": {
         "endpoints": {
-            "spendingTrackerAPI": {
-                "auth": "api/auth",
-                "greetings": "api/greetings"
-            },
             "auth": {
                 "login": "api/login"
             },
@@ -15,6 +11,7 @@
                 "callMethod": "api/ones/v2/ones/call-method"
             },
             "kaspi": {
+                "check": "api/kaspi/kaspi/check",
                 "pay": "api/kaspi/kaspi/pay"
             },
             "dictionary": {
