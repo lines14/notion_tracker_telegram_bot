@@ -37,7 +37,6 @@ class Handlers {
     const fullPaidSubstr = 'полностью оплачен';
     let stateData = paymentStatesGroup.getData(ctx.from.id);
     const { env } = stateData;
-    const successMsg = `Полис с номером/кодом ${stateData.account} оплачен на ${env}`;
 
     await KaspiAPI.setToken({ env });
     let response = await KaspiAPI.check(stateData);
@@ -57,11 +56,11 @@ class Handlers {
 
       msg = JSONResponse.comment.includes(fullPaidSubstr)
       || JSONResponse.comment.includes('принят')
-        ? successMsg
+        ? `Полис с номером/кодом ${stateData.account} оплачен на сумму ${responseWithNamedFields.Amount} на ${env}`
         : `Ошибка при оплате полиса ${stateData.account} на ${env}: ${JSONResponse.comment}`;
     } else {
       msg = responseWithNamedFields.message.includes(fullPaidSubstr)
-        ? successMsg
+        ? `Полис с номером/кодом ${stateData.account} был ранее оплачен на ${env}`
         : `Ошибка при оплате полиса ${stateData.account} на ${env}: ${responseWithNamedFields.message}`;
     }
 
