@@ -29,6 +29,7 @@
                     "200": "GetContractDsAuto_By_Number",
                     "203": "GetContractDsAuto_By_Number",
                     "206": "GetContractDsAuto_By_Number",
+                    "211": "GetContractDsAuto_By_Number",
                     "219": "GetContractDsAuto_By_Number",
                     "101": "GetContractDsProperty_By_Number",
                     "510": "GetContractDsAccident_By_Number",
